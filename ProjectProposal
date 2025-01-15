@@ -1,0 +1,26 @@
+Project Name: Debt Tracker - Icebreaker Finance
+
+
+Student Name: Dylan Fisher, Latoya Hall
+
+
+January 9th, 2025
+ 
+Project Description
+We are proposing a dynamic web site that allows users to input their debts and organize them to use the snowball method of debt repayment. A user will be able to input these debts by typing in individual data points for each debt. They also will be able to input a payment amount and the website will automatically show the improvement to the debt, paying all minimum payments and placing extra towards the smallest debt, and updating the total. The website will also provide a timeframe for the amount of time it will take to pay off each debt. The website will also contain a resources page that will provide other resources and links to help with debt reduction. Users will also be able to provide their own resources. This includes a few aspects. The first is that there is a separate page accessible to all users, logged in or otherwise, that will contain the resources that we find for improving debt recovery, as well as the ability for users that are logged in to upload their own resources. Users will be able to add text and links to their own resources, where it will be added and displayed onto the bottom of the resources tab with their name as well as the date that the resource was provided. Admin accounts will be able to monitor and delete anything added by users, and will be able to remove users accounts at their discretion.
+
+Functionality 
+Users can register and login. They can comment and add their own resources for debt reduction, as well as see their own debts and inform the system of payments. They will be able to also import new debts and select different methods of debt payment.
+
+Admin’s can monitor all users, delete users comments, and manage user accessibility.
+Functionality of the site includes the following: 
+Secure login for both users and administrators of the site.
+Administrators can:
+Add/Edit/Delete/Search users and resources
+Add New Administrators
+Depending on the rights for a particular group non-admin users can
+Add(Upload)/Delete/Update/Search files and resources to the resources page
+Add/Delete/Update/Search Debts to their main profile
+ 
+Development Platform 
+The site will be programmed in PHP with JavaScript and MySQL as the DBMS. The site will be hosted using XAMPP which we used in our PHP class during term 5. 

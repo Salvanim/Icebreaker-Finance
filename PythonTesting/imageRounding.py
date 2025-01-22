@@ -13,8 +13,7 @@ def roundImage(input_path, output_path, roundAmount):
             imageList[pixelIndex] = tuple(createdPixel)
         imageOutput.putdata(imageList)
         imageOutput.save(output_path)
-    
     except FileNotFoundError:
         raise FileNotFoundError(f"The file '{input_path}' was not found.")
 
-roundImage("PythonTesting/test.png", "outputtest.png", 12)
+roundImage("PythonTesting/test.jpg", "outputtest.png", 12)

@@ -11,9 +11,9 @@
         }
         .container {
             margin: 20px auto;
-            max-width: 800px;
+            max-width: 1000px;
             padding: 20px;
-            background-color: #fff;
+            background-color: #64b5f6;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -40,4 +40,27 @@
             color: red;
             margin-bottom: 10px;
         }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+          }
+
+          ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+          }
+          
+          li {
+            float: left;
+          }
+          
+          li a {
+            display: block;
+            padding: 8px;
+            background-color: #bbdefb;
+          }
     

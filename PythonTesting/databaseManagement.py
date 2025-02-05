@@ -130,10 +130,17 @@ class DatabaseManager():
             database=self.database
         )
         self.cursor = self.db_connection.cursor()
+    
+    def getTableNames(self):
+        return list(self.info().keys())
+
+    def clearTable(self, index):
+        self.execute("Delete From", self.getTableNames()[index])
+
 
 db = DatabaseManager("mysql.neit.edu","5500","capstone_202520_winteriscoming","Winteriscoming","capstone_202520_winteriscoming")
 
 info = db.info()
 print(info)
-db.insert(list(info.keys())[2], info[list(info.keys())[2]][1:], ["DylanFisher", "djfisher@email.neit.edu", "password", "admin"])
-db.execute("Delete FROM", list(info.keys())[2])
+db.insert(db.getTableNames()[2], info[db.getTableNames()[2]][1:], ["DylanFisher", "djfisher@email.neit.edu", "password", "admin"])
+db.clearTable(2)

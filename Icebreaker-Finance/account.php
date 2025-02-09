@@ -1,25 +1,54 @@
+<?php
+    
+    $userRole = "user"; 
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Icebreaker Finance Home</title>
+    <title>Account Details</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav id="nav">
         <ul>
-            <li><a href="/Icebreaker-Finance/index.html">Home</a></li>
-            <li><a href="/Icebreaker-Finance/debt-buster-tools.html">Debt Buster Tools</a></li>
-            <li><a href="/Icebreaker-Finance/login-register.html">Login/Register</a></li>
-            <li><a href="/Icebreaker-Finance/logout.html">Logout</a></li>
+            <li><a href="index.php">Icebreaker Finance</a></li>
+            <li><a href="debt-buster-tools.php">Debt Buster Tools</a></li>
+            <li><a href="account.php">Account</a></li>
+            <li><a href="index.php">Logout</a></li>
         </ul>
-    </nav>
+</nav>
 
-    <main>
-        <h1>Smash Debt with Our Easy-to-Use Debt Tracker</h1>
+ <!-- modify accounts for admin -->
+ <?php if ($userRole === "admin") : ?>
+        <div class="modify-accounts">
+            <button onclick="window.location.href='admin-account-mgmt'">Modify Accounts</button>
+        </div>
+    <?php endif; ?>
 
-        <div class="container">
+<!-- debt list section -->
+<div class="debts">
+        <h2>Debts</h2>
+        <div class="debt-item">
+            <div>Credit Card</div>
+            <button onclick="window.location.href='edit-debt.html'">GO</button>
+        </div>
+        <div class="debt-item">
+            <div>Car</div>
+            <button onclick="window.location.href='edit-debt.html'">GO</button>
+        </div>
+        <div class="debt-item">
+            <div>House</div>
+            <button onclick="window.location.href='edit-debt.html'">GO</button>
+        </div>
+        <div>
+            <button onclick="window.location.href='all-debts.html'">All</button>
+        </div>
+    </div>
+
+    <div class="container">
             <h1>Debt Tracker</h1>
             <div id="error-message" class="error-message"></div>
             <form id="debt-form">
@@ -53,28 +82,6 @@
                 </div>
             </div>
         </div>
-
-        <h2>Learn About the Debt Snowball Method</h2>
-        <iframe
-            width="560"
-            height="315"
-            src="https://www.youtube.com/embed/Q5jlY8_WmEE?si=Rkmu7_eIzgTBIxkn"
-            title="Debt Snowball"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
-
-        <h2>Learn About the Debt Avalanche Method</h2>
-        <iframe
-            width="560"
-            height="315"
-            src="https://www.youtube.com/embed/S19s7RwpKSM?si=UupX9dSsHdSNrE5G"
-            title="Debt Avalanche"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
-
         <script src="script.js"></script>
-    </main>
 </body>
 </html>

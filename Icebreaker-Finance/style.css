@@ -26,6 +26,10 @@ h1, h2 {
 .container-login {
     max-width: 800px;
     background-color: #bbdefb;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* table styling */

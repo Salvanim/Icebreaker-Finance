@@ -7,14 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <nav id="nav">
-        <ul>
-            <li><a href="/Icebreaker-Finance/index.html">Home</a></li>
-            <li><a href="/Icebreaker-Finance/debt-buster-tools.html">Debt Buster Tools</a></li>
-            <li><a href="/Icebreaker-Finance/account.html">Account</a></li> <!-- Account button -->
-            <li><a href="/Icebreaker-Finance/logout.html">Logout</a></li>
-        </ul>
-    </nav>
+<nav id="nav">
+    <ul>
+        <li><a href="index.php">Icebreaker Finance</a></li>
+        <li><a href="debt-buster-tools.php">Debt Buster Tools</a></li>
+        <li><a href="account.php">Account</a></li>
+        <li><a href="logout.php">Logout</a></li>
+    </ul>
+</nav>
+
 
     <header>
         <h1>Welcome to Icebreaker Finance</h1>

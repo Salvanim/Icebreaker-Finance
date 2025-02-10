@@ -9,14 +9,7 @@
     
 </head>
 <body>
-    <nav id="nav">
-        <ul>
-            <li><a href="index.php">Icebreaker Finance</a></li>
-            <li><a href="debt-buster-tools.php">Debt Buster Tools</a></li>
-            <li><a href="account.php">Account</a></li>
-            <li><a href="logout.php">Logout</a></li>
-        </ul>
-    </nav>
+<?php include 'nav.php'; ?>
 
     
     <main>

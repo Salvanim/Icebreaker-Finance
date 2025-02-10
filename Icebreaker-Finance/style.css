@@ -1,90 +1,129 @@
 
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    text-align: center;
-    background-color: #bbedfb;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-/* headings */
+
 h1, h2 {
     color: #333;
     margin-bottom: 20px;
 }
 
-/* container styling */
-.container {
+
+.container, .container-login {
     margin: 20px auto;
-    max-width: 1000px;
-    padding: 20px;
+    width: 90%; 
+    padding: 15px;
     background-color: #bbdefb;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
-.container-login {
-    max-width: 800px;
-    background-color: #bbdefb;
-    margin: 20px auto;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+.debt-table {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto; 
+    display: block;
+    margin: 0 auto; 
 }
 
-/* table styling */
-table {
+
+
+.debt-table table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
+    table-layout: fixed; 
+    min-width: 320px; 
 }
+
 
 th, td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
+    white-space: nowrap; 
 }
+
 
 th {
-    background-color: #f4f4f4;
+    background-color: #fff;
 }
 
-.total-amount {
-    margin-top: 10px;
-    font-size: 18px;
-    color: #333;
+
+@media (max-width: 768px) {
+    .debt-table {
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
+        width: 100%;
+    }
+
+    .debt-table table {
+        width: 100%;
+        display: block;
+    }
+
+    th, td {
+        padding: 5px;
+        font-size: 12px;
+    }
 }
 
-/* error message styling */
-.error-message {
-    color: red;
+
+@media (max-width: 480px) {
+    .debt-table table {
+        font-size: 10px; 
+    }
+
+    th, td {
+        padding: 4px;
+    }
+}
+
+
+button {
+    width: 100%;
+    padding: 14px;
     margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1976d2;
+    color: white;
+    transition: background-color 0.3s;
 }
 
-/* nav bar */
+button:hover {
+    background-color: #0d47a1;
+}
+
+
 nav#nav {
     background-color: #bbedfb;
-    padding: 1rem;
+    padding: 5px;
 }
 
 nav#nav ul {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    text-align: center;
+    gap: 5px;
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-nav#nav ul li {
-    margin: 0 10px;
-}
-
 nav#nav ul li a {
     display: block;
-    padding: 8px 12px;
     text-decoration: none;
     background-color: #bbdefb;
     color: #000;
+    padding: 8px;
     border-radius: 5px;
     transition: background-color 0.3s;
 }
@@ -93,51 +132,29 @@ nav#nav ul li a:hover {
     background-color: #bbedfb;
 }
 
-/* tool box styling */
-.tool-box {
-    width: 100%;
-    min-height: 200px;
-    background-color: #64b5f6;
-    border-radius: 8px;
-    padding: 10px;
-    overflow-y: auto; /* allows scrolling if content exceeds box height */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
 
-/* resource list styling */
-.resource-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    text-align: left;
-}
-
-.resource-list li {
-    background-color: #bbdefb;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.resource-list .placeholder {
-    text-align: center;
-    font-style: italic;
-    color: #666;
-}
-
-
-/* responsive design */
-@media (max-width: 768px) {
+@media (min-width: 768px) {
     .container, .container-login {
-        width: 90%;
-        padding: 15px;
+        width: 80%;
+        padding: 20px;
     }
 
     nav#nav ul {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
+        flex-direction: row;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    table {
+        font-size: 14px;
+    }
+}
+
+
+@media (min-width: 1024px) {
+    .container, .container-login {
+        width: 70%;
+        max-width: 1200px;
+        padding: 30px;
     }
 }

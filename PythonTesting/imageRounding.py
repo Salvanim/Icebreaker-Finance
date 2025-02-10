@@ -16,4 +16,6 @@ def roundImage(input_path, output_path, roundAmount):
     except FileNotFoundError:
         raise FileNotFoundError(f"The file '{input_path}' was not found.")
 
+'''
 roundImage("PythonTesting/test.jpg", "PythonTesting/testingImage.png", 12)
+'''

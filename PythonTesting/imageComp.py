@@ -115,6 +115,7 @@ class imageComp():
         imageOutput.putdata(self.decode())
         imageOutput.save(output_path)
         return imageOutput
-
+'''
 image = imageComp('PythonTesting/test.jpg', 0)
 print(image.saveImage('PythonTesting/output.png'))
+'''

@@ -11,8 +11,34 @@
 <?php include 'nav.php'; ?>
 
     <main>
-        <h1>Smash Debt with Our Easy-to-Use Debt Tracker</h1>
+        <div id="smash"><h1>Smash Debt with Our Easy-to-Use Debt Snowball and Avalanche Trackers</h1></div>
 
+
+        <h2>Debt Snowball Method</h2>
+        <div style="width: 425px; height: 4px; background: #084096"></div>
+        <br>
+        <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/Q5jlY8_WmEE?si=Rkmu7_eIzgTBIxkn"
+            title="Debt Snowball"
+            frameborder="0"
+            allowfullscreen
+        ></iframe>
+
+        <h2>Debt Avalanche Method</h2>
+        <div style="width: 425px; height: 4px; background: #084096"></div>
+        <br>
+        <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/S19s7RwpKSM?si=UupX9dSsHdSNrE5G"
+            title="Debt Avalanche"
+            frameborder="0"
+            allowfullscreen
+        ></iframe>
+
+        
         <div class="container">
             <h1>Debt Tracker</h1>
             <div id="error-message" class="error-message"></div>
@@ -28,7 +54,9 @@
                 <input type="number" step="0.01" id="interest-rate" placeholder="Interest Rate (%)" required />
                 <button type="submit">Add Debt</button>
             </form>
+            
             <div class="debt-table">
+            
                 <table>
                     <thead>
                         <tr>
@@ -47,26 +75,6 @@
                 </div>
             </div>
         </div>
-
-        <h2>Learn About the Debt Snowball Method</h2>
-        <iframe
-            width="560"
-            height="315"
-            src="https://www.youtube.com/embed/Q5jlY8_WmEE?si=Rkmu7_eIzgTBIxkn"
-            title="Debt Snowball"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
-
-        <h2>Learn About the Debt Avalanche Method</h2>
-        <iframe
-            width="560"
-            height="315"
-            src="https://www.youtube.com/embed/S19s7RwpKSM?si=UupX9dSsHdSNrE5G"
-            title="Debt Avalanche"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
 
         <script src="script.js"></script>
     </main>

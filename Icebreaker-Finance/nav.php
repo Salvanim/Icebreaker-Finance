@@ -8,7 +8,7 @@
 ?>
 <nav id="nav">
     <ul>
-        <li><a href="index.php">Icebreaker Finance</a></li>
+        <li class="logo"><a href="index.php">Icebreaker Finance</a></li>
         <li><a href="debt-buster-tools.php">Debt Buster Tools</a></li>
 
         <?php if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] === true) : ?>

@@ -24,7 +24,7 @@ class DatabaseManager():
             finalCommandString = ""
             for com in command:
                 finalCommandString += com + "\n"
-            self.cursor.execute(finalCommandString, multi=multi)
+            self.cursor.execute(finalCommandString)
             output.append(self.fetch(fetchType, size))
         else:
             for com in command:

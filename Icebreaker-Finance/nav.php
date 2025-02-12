@@ -5,6 +5,7 @@
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
+    
 ?>
 <nav id="nav">
     <ul>

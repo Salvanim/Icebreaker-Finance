@@ -26,7 +26,7 @@
 
     <!-- debt list section -->
     <div class="debts">
-        <h2>Debts</h2>
+        <h2 class="debt-account">Debts</h2>
         <div class="debt-item">
             <div>Credit Card</div>
             <button onclick="window.location.href='edit-debt.php'">GO</button>
@@ -39,7 +39,7 @@
             <div>House</div>
             <button onclick="window.location.href='edit-debt.php'">GO</button>
         </div>
-        <div>
+        <div class="debt-item">
             <button onclick="window.location.href='all-debts.php'">All</button>
         </div>
     </div>

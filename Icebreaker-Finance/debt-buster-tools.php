@@ -15,7 +15,7 @@
             <h2>Simplify Finances</h2>
             <div class="tool-box">
                 <ul id="simplify-resources" class="resource-list">
-                    <!-- Content will be dynamically added here -->
+                    <!-- content will be dynamically added here -->
                     <li class="placeholder">No resources available yet.</li>
                 </ul>
             </div>

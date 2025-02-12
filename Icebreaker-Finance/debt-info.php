@@ -9,5 +9,33 @@
 <body>
 <?php include 'nav.php'; ?>
 
+    <main>
+        <div class="container">
+            <h1> Summary </h1>
+            <div class="container">
+            <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Minimum Payment</th>
+                            <th>Interest</th>
+                            <th>Payoff Date</th>
+                        </tr>
+                    </thead>
+            </div>
+
+
+
+
+
+
+
+
+
+        </div>
+
+
+ 
+
 </body>
 </html>

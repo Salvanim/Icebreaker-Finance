@@ -4,18 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Icebreaker Finance Home</title>
-    <!--<link rel="stylesheet" href="style.css">-->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<?php
-    echo "Before Calling python file.";
-    echo "<br>";
-    $data = "I'm from PHP file";
-    $output = shell_exec("python test.py " . $data);
-    echo "Output from python file is" . $output;
-    echo "</br>";
-    echo "After Calling Python file.";
-?>
 <?php include 'nav.php'; ?>
 
     <section class="banner">

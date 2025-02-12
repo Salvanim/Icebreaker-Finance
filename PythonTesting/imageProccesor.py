@@ -143,6 +143,7 @@ def select_file():
     )  # Open file dialog to select an image file
     return file_path
 
+'''
 if __name__ == "__main__":
     image_path = 'PythonTesting/test.png'
     output_path = 'PythonTesting/output.png'
@@ -150,3 +151,4 @@ if __name__ == "__main__":
     processor = ImageProcessor(image_path, round=10, mode='RGBA')
     #print(processor)
     processor.getImage().save(output_path)
+'''

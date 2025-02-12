@@ -120,7 +120,7 @@ class definePlot:
         else:
             print("No plot has been created yet.")
             return None
-
+'''
 data = [['Geek1', 28, 'Analyst', 23],
         ['Geek2', 35, 'Manager', 19],
         ['Geek3', 29, 'Developer', 30]]
@@ -137,3 +137,4 @@ plot.boxPlot("Age", "B-Day", title="title")
 # Show the plot
 #plot.show()
 plot.getImage().save("testImageOutput.png")
+'''

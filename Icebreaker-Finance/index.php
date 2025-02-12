@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,39 +7,47 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <?php include 'nav.php'; ?>
 
-    <main>
-        <div id="smash"><h1>Smash Debt with Our Easy-to-Use Debt Snowball and Avalanche Trackers</h1></div>
+    <section class="banner">
+        <p class="banner-text">Smash Debt with Our Easy-to-Use Debt Snowball and Avalanche Trackers</p>
+    </section>
 
-
-        <h2>Debt Snowball Method</h2>
-        <div style="width: 425px; height: 4px; background: #084096"></div>
-        <br>
-        <iframe
-            width="560"
-            height="315"
+    <!-- Debt Snowball Method -->
+<section class="debt-method">
+    <h2 class="section-title">Debt Snowball Method</h2>
+    <div class="divider"></div>
+    <div class="video-container">
+        <iframe 
             src="https://www.youtube.com/embed/Q5jlY8_WmEE?si=Rkmu7_eIzgTBIxkn"
             title="Debt Snowball"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
+            allowfullscreen>
+        </iframe>
+    </div>
+</section>
 
-        <h2>Debt Avalanche Method</h2>
-        <div style="width: 425px; height: 4px; background: #084096"></div>
-        <br>
-        <iframe
-            width="560"
-            height="315"
+<!-- Debt Avalanche Method -->
+<section class="debt-method">
+    <h2 class="section-title">Debt Avalanche Method</h2>
+    <div class="divider"></div>
+    <div class="video-container">
+        <iframe 
             src="https://www.youtube.com/embed/S19s7RwpKSM?si=UupX9dSsHdSNrE5G"
             title="Debt Avalanche"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
+            allowfullscreen>
+        </iframe>
+    </div>
+</section>
 
-        
+
+        <!-- Debt Tracker -->
+        <section class="calculator-header">
+            Try our debt repayment calculator
+        </section>
+
         <div class="container">
-            <h1>Debt Tracker</h1>
+            <h1 class="section-title">Debt Tracker</h1>
             <div id="error-message" class="error-message"></div>
             <form id="debt-form">
                 <input type="text" id="debt-name" placeholder="Debt Name" required />
@@ -52,14 +59,13 @@
                 <input type="number" id="debt-amount" placeholder="Debt Amount" required />
                 <input type="number" id="min-payment" placeholder="Minimum Payment" required />
                 <input type="number" step="0.01" id="interest-rate" placeholder="Interest Rate (%)" required />
-                <button type="submit">Add Debt</button>
+                <button type="submit" class="go-button">Add Debt</button>
             </form>
-            
+
             <div class="debt-table">
-            
                 <table>
                     <thead>
-                        <tr>
+                        <tr class="table-header">
                             <th>Debt Name</th>
                             <th>Debt Amount</th>
                             <th>Minimum Payment</th>
@@ -68,15 +74,19 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody id="debt-list"></tbody>
+                    <tbody id="debt-list" class="table-data"></tbody>
                 </table>
                 <div class="total-amount">
                     <strong>Total Debt:</strong> $<span id="total-debt">0</span>
                 </div>
             </div>
         </div>
-
-        <script src="script.js"></script>
     </main>
+
+    <footer class="footer">
+        Footer
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>

@@ -1,197 +1,355 @@
-
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    background-color: #fff;
-}
-
-
-h1{
-    background: linear-gradient(0deg, #084096 0%, #074EBD 100%);
-    color: white;
-    font-size: 30px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-weight: 400;
-    word-wrap: break-word;
-    text-align: center;
-
-    
-}
-
-h2 {
-    color: #084096;
-    margin-bottom: 20px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-weight: 600;
-    
-}
-
-
-.container, .container-login {
-    margin: 0 auto;
-    width: 90%; 
-    padding: 15px;
-    background-color: #bbdefb;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-}
-
-
-
-
-.debt-table {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto; 
-    display: block;
-    margin: 0 auto; 
-}
-
-
-
-.debt-table table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed; 
-    min-width: 320px; 
-    
-}
-
-.debt-item{
-    text-align: center;
-}
-
-.debt-account{
-    text-align: center;
-}
-
-
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-    white-space: nowrap; 
-}
-
-
-th {
-    background-color: #fff;
-}
-
-footer{
-    text-align: center;
-}
-
-
-
-@media (max-width: 768px) {
-    .debt-table {
-        overflow-x: auto;
-        display: block;
-        white-space: nowrap;
-        width: 100%;
-    }
-
-    .debt-table table {
-        width: 100%;
-        display: block;
-    }
-
-    th, td {
-        padding: 5px;
-        font-size: 12px;
-    }
-}
-
-
-
-
-@media (max-width: 480px) {
-    .debt-table table {
-        font-size: 10px; 
-    }
-
-    th, td {
-        padding: 4px;
-    }
-}
-
-
-button {
-    width: 20%;
-    padding: 14px;
-    margin-bottom: 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #90caf9;
-    color: white;
-    transition: background-color 0.3s;
+/* NAV BAR */
+#nav {
+    background: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
 }
 
-button:hover {
-    background-color: #0d47a1;
-}
-
-
-nav#nav {
-    padding: 5px;
-}
-
-nav#nav ul {
-    display: flex;
-    flex-direction: row;
-    text-align: center;
-    gap: 5px;
-    list-style: none;
-    padding: 0;
+/* NAV CONTAINER */
+#nav ul {
+    list-style-type: none;
     margin: 0;
-    
+    padding: 0;
+    display: flex;
+    align-items: center;
+    width: 100%;
 }
 
-nav#nav ul li a {
-    display: inline;
+/* LOGO */
+.logo a {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: Oswald, sans-serif;
+    color: #153E90;
     text-decoration: none;
-    background-color: #bbdefb;
-    color: #000;
-    padding: 8px;
+}
+
+/* NAV LINKS */
+.nav-right {
+    display: flex;
+    margin-left: auto;
+    gap: 20px;
+}
+
+/* INDIVIDUAL NAV ITEMS */
+#nav ul li {
+    position: relative;
+    padding: 10px 15px;
+}
+
+#nav ul li a {
+    text-decoration: none;
+    color: #153E90;
+    font-size: 16px;
+    font-weight: 400;
+    font-family: Oswald, sans-serif;
+    transition: color 0.3s;
+}
+
+#nav ul li a:hover {
+    color: #4A90E2;
+}
+
+/* DROPDOWN MENU */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #153E90;
+    min-width: 180px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    top: 100%;
+    left: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+/* DROP DOWN ANIMATION */
+.dropdown-content.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* DROP DOWN LINKS */
+.dropdown-content li {
+    display: block;
+}
+
+.dropdown-content li a {
+    display: block;
+    padding: 10px;
+    color: #153E90;
+    font-size: 14px;
+}
+
+.dropdown-content li a:hover {
+    background-color: #4A90E2;
+    color: white;
+}
+
+/* BODY */
+body {
+    font-family: Oswald, sans-serif;
+    color: #084096;
+    background: white;
+    margin: 0;
+    padding: 0;
+}
+
+/* HEADER */
+.header {
+    width: 100%;
+    background: linear-gradient(0deg, #084096 0%, #074EBD 100%);
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 20px;
+    font-family: Koulen, sans-serif;
+    font-weight: 400;
+    position: relative;
+}
+
+.login {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 300;
+    cursor: pointer;
+}
+
+/* BANNER SECTION */
+.banner {
+    background: linear-gradient(0deg, #084096 0%, #074EBD 100%);
+    padding: 15px;
+    text-align: center;
+}
+
+.banner-text {
+    color: white;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+/* SECTION TITLES */
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* DIVIDERS */
+.divider {
+    width: 60%;
+    height: 4px;
+    background: #084096;
+    margin: 10px auto;
+}
+
+/* DEBT CALCULATOR HEADER */
+.calculator-header {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(0deg, #084096 0%, #074EBD 100%);
+    padding: 15px;
+}
+
+/* VIDEO */
+.video-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 20px auto;
+}
+
+.video-container iframe {
+    width: 100%;
+    max-width: 560px; 
+    height: 315px;
+    border: none;
+}
+
+
+/* CONTAINER FOR DEBT TRACKER */
+.container {
+    width: 90%;
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+    padding: 20px;
+}
+
+/* FORM STYLING */
+#debt-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#debt-form input,
+#debt-form select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #084096;
     border-radius: 5px;
-    transition: background-color 0.3s;
 }
 
-nav#nav ul li a:hover {
-    background-color: #bbedfb;
+#debt-form button {
+    background: linear-gradient(0deg, #031E47 0%, #084096 100%);
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#debt-form button:hover {
+    background: #031E47;
+}
+
+/* TABLE STYLES */
+.debt-table {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+thead {
+    background: #084096;
+    color: white;
+}
+
+th, td {
+    border: 1px solid #084096;
+    padding: 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+tr:nth-child(even) {
+    background: #f2f2f2;
+}
+
+.total-amount {
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* FOOTER */
+.footer {
+    text-align: center;
+    background: #FFF;
+    color: #084096;
+    font-size: 12px;
+    font-family: Inter, sans-serif;
+    font-weight: 400;
+    padding: 15px 0;
+}
+
+/* --- MEDIA QUERIES FOR LARGER SCREENS --- */
+
+/* TABLETS (min-width: 768px) */
+@media screen and (min-width: 768px) {
+    .container {
+        max-width: 700px;
+    }
+
+    .banner-text {
+        font-size: 18px;
+    }
+
+    .section-title {
+        font-size: 18px;
+    }
+
+    #debt-form input,
+    #debt-form select {
+        font-size: 16px;
+    }
+
+    th, td {
+        font-size: 16px;
+    }
 }
 
 
 
-@media (min-width: 768px) {
-    .container, .container-login {
-        width: 80%;
+
+/* DESKTOPS (min-width: 1024px) */
+@media screen and (min-width: 1024px) {
+    .header {
+        font-size: 24px;
+        padding: 20px 0;
+    }
+
+    .login {
+        font-size: 14px;
+    }
+
+    .banner-text {
+        font-size: 20px;
         padding: 20px;
     }
 
-    nav#nav ul {
-        flex-direction: row;
-        justify-content: center;
-        gap: 15px;
+    .container {
+        max-width: 900px;
     }
 
-    table {
+    .section-title {
+        font-size: 20px;
+    }
+
+    .calculator-header {
+        font-size: 18px;
+        padding: 20px;
+    }
+
+    #debt-form {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    #debt-form input,
+    #debt-form select {
+        width: 48%;
+    }
+
+    #debt-form button {
+        width: 100%;
+    }
+
+    th, td {
+        font-size: 18px;
+    }
+
+    .footer {
         font-size: 14px;
     }
-}
-
-
-@media (min-width: 1024px) {
-    .container, .container-login {
-        width: 70%;
-        max-width: 1200px;
-        padding: 30px;
+    .video-container iframe {
+        max-width: 700px; 
+        height: 394px;
     }
 }

@@ -52,25 +52,31 @@
             </div>
         </div>
 
-        <h2>Learn About the Debt Snowball Method</h2>
-        <iframe
-            width="560"
-            height="315"
+        <!-- Debt Snowball Method -->
+<section class="debt-method">
+    <h2 class="section-title">Debt Snowball Method</h2>
+    <div class="divider"></div>
+    <div class="video-container">
+        <iframe 
             src="https://www.youtube.com/embed/Q5jlY8_WmEE?si=Rkmu7_eIzgTBIxkn"
             title="Debt Snowball"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
+            allowfullscreen>
+        </iframe>
+    </div>
+</section>
 
-        <h2>Learn About the Debt Avalanche Method</h2>
-        <iframe
-            width="560"
-            height="315"
+<!-- Debt Avalanche Method -->
+<section class="debt-method">
+    <h2 class="section-title">Debt Avalanche Method</h2>
+    <div class="divider"></div>
+    <div class="video-container">
+        <iframe 
             src="https://www.youtube.com/embed/S19s7RwpKSM?si=UupX9dSsHdSNrE5G"
             title="Debt Avalanche"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
+            allowfullscreen>
+        </iframe>
+    </div>
+</section>
 
         <script src="script.js"></script>
     </main>

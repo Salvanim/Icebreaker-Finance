@@ -9,5 +9,8 @@
 <body>
 <?php include 'nav.php'; ?>
 
+<footer class="footer">
+    <p>© 2025 Icebreaker Finance. All rights reserved.</p>
+</footer>
 </body>
 </html>

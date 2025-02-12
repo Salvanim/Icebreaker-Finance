@@ -84,7 +84,7 @@
     </main>
 
     <footer class="footer">
-        Footer
+    <p>© 2025 Icebreaker Finance. All rights reserved.</p>
     </footer>
 
     <script src="script.js"></script>

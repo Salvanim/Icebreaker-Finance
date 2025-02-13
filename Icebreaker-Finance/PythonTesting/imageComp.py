@@ -10,7 +10,7 @@ class imageComp():
         self.char_sets = self.every_pixel_convert_to_charset_string()
         self.encodedCharSet = self.rle_encode(self.split_char_sets_groups(self.char_sets))
         self.convertDicionary = {0:{}, 1:{}, 2:{}, 3:{}}
-
+        
     def get_pixel_values(self):
         try:
             im = Image.open(self.image_path).convert('RGBA')

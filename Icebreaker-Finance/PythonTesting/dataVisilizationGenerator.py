@@ -10,6 +10,15 @@ class definePlot:
         self.dataframe = pd.DataFrame(data, columns=columns)
         self.columnNames = list(self.dataframe.columns)
         self.fig = None
+        self.methodVarriables = {
+            "bar": ["xColumnName", "yColumnname", "title", "xlabel", "ylabel", "color", "edgecolor", "linewidth"],
+            "hist": ["columnName", "title", "xlabel", "ylabel", "bins", "color", "edgecolor", "linestyle", "alpha"],
+            "pie": ["columnName", "columnLables", "title", "explode", "autopct", "colors", "shadow"],
+            "scatter": ["labels", "explode", "colors", "autopct", "shadow"],
+            "box": ["*columnNames", "title", "xlabel", "ylabel", "vert", "patch_artist", "boxprops", "medianprops"],
+            "line": ["xColumnName", "yColumnname", "title", "xlabel", "ylabel", "color", "linewidth", "marker", "markersize", "linestyle"],
+            "heat": ["columnName", "title", "xlabel", "ylabel", "cmap", "interpolation"]
+            }
     
     def bar(self, xColumnName, yColumnname, title='', xlabel='', ylabel='', color='green', edgecolor='blue', linewidth=2):
         self.fig, ax = plt.subplots()

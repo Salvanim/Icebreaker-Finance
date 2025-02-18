@@ -7,14 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<?php include 'pythonInteraction.php'; ?>
-
-<?php
-    $param1 = "DatabaseManager";
-    echo "Output from Python file:<br>" . pyScript("PythonTesting/general.py", [$param1])
-?>
-
-
 <?php include 'nav.php'; ?>
 
     <section class="banner">

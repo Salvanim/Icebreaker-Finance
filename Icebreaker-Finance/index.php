@@ -41,13 +41,20 @@
 
 
         <!-- Debt Tracker -->
-        <section class="calculator-header">
-            Try our debt repayment calculator
-        </section>
+<section class="banner">
+    <p class="banner-text">Try our debt repayment calculator</p>
+</section>
 
-        <div class="container">
-            <h1 class="section-title">Debt Tracker</h1>
-            <div id="error-message" class="error-message"></div>
+<section class="debt-method">
+    
+    <div class="container">
+        <div id="error-message" class="error-message"></div>
+
+        <!-- plus button to show and hide debt Form -->
+        <button class="add-debt-btn" onclick="toggleDebtForm()">+</button>
+
+        <!-- hidden form -->
+        <div id="debt-form-container" class="hidden">
             <form id="debt-form">
                 <input type="text" id="debt-name" placeholder="Debt Name" required />
                 <select id="method">
@@ -58,29 +65,31 @@
                 <input type="number" id="debt-amount" placeholder="Debt Amount" required />
                 <input type="number" id="min-payment" placeholder="Minimum Payment" required />
                 <input type="number" step="0.01" id="interest-rate" placeholder="Interest Rate (%)" required />
-                <button type="submit" class="go-button">Add Debt</button>
+                <button type="button" class="go-button" onclick="addDebt()">GO</button>
             </form>
+        </div>
 
-            <div class="debt-table">
-                <table>
-                    <thead>
-                        <tr class="table-header">
-                            <th>Debt Name</th>
-                            <th>Debt Amount</th>
-                            <th>Minimum Payment</th>
-                            <th>Interest Rate (%)</th>
-                            <th>Payoff Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="debt-list" class="table-data"></tbody>
-                </table>
-                <div class="total-amount">
-                    <strong>Total Debt:</strong> $<span id="total-debt">0</span>
-                </div>
+        <!-- Debt Table -->
+        <div class="debt-table">
+            <table>
+                <thead>
+                    <tr class="table-header">
+                        <th>Debt Name</th>
+                        <th>Debt Amount</th>
+                        <th>Minimum Payment</th>
+                        <th>Interest Rate (%)</th>
+                        <th>Payoff Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="debt-list" class="table-data"></tbody>
+            </table>
+            <div class="total-amount">
+                <strong>Total Debt:</strong> $<span id="total-debt">0</span>
             </div>
         </div>
-    </main>
+    </div>
+</section>
 
     <footer class="footer">
     <p>© 2025 Icebreaker Finance. All rights reserved.</p>

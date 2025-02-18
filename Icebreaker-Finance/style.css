@@ -92,6 +92,141 @@
     color: white;
 }
 
+/* MODAL STYLING */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000 !important; /* Ensures modal is on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 1 !important; /* FORCE visibility */
+    visibility: visible !important;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+
+/* MODAL CONTENT */
+.modal-content {
+    background-color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 25px;
+    border-radius: 8px;
+    width: 35%;
+    max-width: 500px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    opacity: 1 !important; /* FORCE visibility */
+    visibility: visible !important;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    z-index: 10001 !important; /* Ensures modal is above background */
+}
+
+/* FIX: When modal is opened, make it fully visible */
+.modal.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+/* FIX: Ensure modal content is also visible */
+.modal.show .modal-content {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translate(-50%, -50%) !important; /* Prevents positioning bugs */
+}
+
+/* SHOW MODAL ANIMATION */
+.modal.show .modal-content {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* CLOSE BUTTON */
+.close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #555;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* MODAL FORM STYLING */
+.modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.modal label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #084096;
+    text-align: left;
+    display: block;
+}
+
+.modal input {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.modal input:focus {
+    border-color: #084096;
+    outline: none;
+}
+
+/* MODAL BUTTON STYLING */
+.modal button {
+    background: linear-gradient(0deg, #084096 0%, #031E47 100%);
+    color: white;
+    font-size: 16px;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.modal button:hover {
+    background: #031E47;
+}
+
+/* RESPONSIVE MODAL */
+
+@media screen and (max-width: 480px) {
+    .modal-content {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .modal input {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .modal button {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
 /* BODY */
 body {
     font-family: Oswald, sans-serif;
@@ -114,19 +249,9 @@ body {
     position: relative;
 }
 
-.login {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 12px;
-    font-weight: 300;
-    cursor: pointer;
-}
-
 /* BANNER SECTION */
 .banner {
-    background: linear-gradient(0deg, #084096 0%, #074EBD 100%);
+    background: linear-gradient(0deg, #084096 50%, #074EBD 50%);
     padding: 15px;
     text-align: center;
 }
@@ -136,16 +261,7 @@ body {
     font-size: 15px;
     font-weight: 400;
 }
-
-/* SECTION TITLES */
-.section-title {
-    font-size: 16px;
-    font-weight: 700;
-    text-align: center;
-    margin-top: 20px;
-}
-
-/* DIVIDERS */
+/*DIVDER FOR VIDEOS*/
 .divider {
     width: 60%;
     height: 4px;
@@ -153,17 +269,7 @@ body {
     margin: 10px auto;
 }
 
-/* DEBT CALCULATOR HEADER */
-.calculator-header {
-    text-align: center;
-    font-size: 16px;
-    font-weight: 700;
-    color: white;
-    background: linear-gradient(0deg, #084096 0%, #074EBD 100%);
-    padding: 15px;
-}
-
-/* VIDEO */
+/* VIDEO CONTAINER */
 .video-container {
     display: flex;
     justify-content: center;
@@ -172,89 +278,116 @@ body {
     margin: 20px auto;
 }
 
+/* RESPONSIVE VIDEO */
 .video-container iframe {
     width: 100%;
-    max-width: 560px; 
+    max-width: 560px; /* Ensures it's not too large */
     height: 315px;
     border: none;
 }
 
 
-/* CONTAINER FOR DEBT TRACKER */
-.container {
-    width: 90%;
-    max-width: 600px;
-    margin: auto;
-    text-align: center;
-    padding: 20px;
-}
-
-/* FORM STYLING */
-#debt-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-#debt-form input,
-#debt-form select {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #084096;
-    border-radius: 5px;
-}
-
-#debt-form button {
-    background: linear-gradient(0deg, #031E47 0%, #084096 100%);
-    color: white;
+/* SECTION TITLES */
+.section-title {
     font-size: 16px;
     font-weight: 700;
     text-align: center;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-#debt-form button:hover {
-    background: #031E47;
-}
-
-/* TABLE STYLES */
-.debt-table {
     margin-top: 20px;
-    overflow-x: auto;
+    Color: #084096;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-thead {
-    background: #084096;
+/* plus button */
+.add-debt-btn {
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #084096;
     color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-th, td {
+.add-debt-btn:hover {
+    background-color: #062c6b;
+}
+
+/* Form Container - hidden */
+#debt-form-container {
+    display: none;
+}
+
+#debt-form-container.hidden {
+    display: none;
+}
+
+#debt-form-container:not(.hidden) {
+    display: block;
+}
+
+
+.debt-table table {
+    border-collapse: collapse;
+    margin-top: 0;
+   
+}
+
+.debt-table th,
+.debt-table td {
     border: 1px solid #084096;
     padding: 10px;
-    font-size: 14px;
     text-align: center;
-}
-
-tr:nth-child(even) {
-    background: #f2f2f2;
-}
-
-.total-amount {
-    margin-top: 15px;
+    vertical-align: middle; 
     font-size: 16px;
-    font-weight: bold;
+}
+
+/* Set specific widths for each column */
+.debt-table th:nth-child(1), /* Debt Name/Account */
+.debt-table td:nth-child(1) {
+    width: 160px;
+}
+
+.debt-table th:nth-child(2), /* Debt Amount */
+.debt-table td:nth-child(2) {
+    width: 140px;
+}
+
+.debt-table th:nth-child(3), /* Min Payment */
+.debt-table td:nth-child(3) {
+    width: 140px;
+}
+
+.debt-table th:nth-child(4), /* Interest */
+.debt-table td:nth-child(4) {
+    width: 100px;
+}
+
+.debt-table th:nth-child(5), /* Payoff Date */
+.debt-table td:nth-child(5) {
+    width: 140px;
+}
+
+.debt-table th:nth-child(6), /* Action column (Remove button) */
+.debt-table td:nth-child(6) {
+    width: 90px;
+}
+
+/* Table Header Background & Text */
+.table-header th {
+    background-color: #084096;
+    color: white;
+    font-size: 18px;
+    text-transform: uppercase;
+}
+
+/* Optional: Add a small top margin to the table if needed */
+.debt-table {
+    margin-top: 15px;
 }
 
 /* FOOTER */
@@ -268,9 +401,8 @@ tr:nth-child(even) {
     padding: 15px 0;
 }
 
-/* --- MEDIA QUERIES FOR LARGER SCREENS --- */
 
-/* TABLETS (min-width: 768px) */
+/* MEDIA QUERIES */
 @media screen and (min-width: 768px) {
     .container {
         max-width: 700px;
@@ -284,28 +416,15 @@ tr:nth-child(even) {
         font-size: 18px;
     }
 
-    #debt-form input,
-    #debt-form select {
-        font-size: 16px;
-    }
-
-    th, td {
-        font-size: 16px;
+    .modal-content {
+        width: 85%;
     }
 }
 
-
-
-
-/* DESKTOPS (min-width: 1024px) */
 @media screen and (min-width: 1024px) {
     .header {
         font-size: 24px;
         padding: 20px 0;
-    }
-
-    .login {
-        font-size: 14px;
     }
 
     .banner-text {
@@ -321,35 +440,7 @@ tr:nth-child(even) {
         font-size: 20px;
     }
 
-    .calculator-header {
-        font-size: 18px;
-        padding: 20px;
-    }
-
-    #debt-form {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
-
-    #debt-form input,
-    #debt-form select {
-        width: 48%;
-    }
-
-    #debt-form button {
-        width: 100%;
-    }
-
-    th, td {
-        font-size: 18px;
-    }
-
     .footer {
         font-size: 14px;
-    }
-    .video-container iframe {
-        max-width: 700px; 
-        height: 394px;
     }
 }

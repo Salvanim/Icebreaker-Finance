@@ -47,8 +47,8 @@
     </main>
     
 
-    <footer>
-        <p>© 2025 Icebreaker Finance. All rights reserved.</p>
+    <footer class="footer">
+    <p>© 2025 Icebreaker Finance. All rights reserved.</p>
     </footer>
     
 </body>

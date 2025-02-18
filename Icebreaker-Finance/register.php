@@ -1,6 +1,44 @@
 
 
 
+<?php
+session_start();
+require __DIR__ . '/model/db.php';
+
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $action = $_POST['action'] ?? ''; //check for login or register
+    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'];
+
+    
+    // Get user from database
+    $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+        echo "User found: " . $user['username'] . "<br>";
+        echo "Hashed password in DB: " . $user['password'] . "<br>";
+
+        if (password_verify($password, $user['password'])) {
+            echo "Password matched!<br>";
+            // Successful login
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            header("Location: ../index.php");
+            exit;
+        } else {
+            echo "Password did not match.<br>";
+        }
+    } else {
+        echo "User not found.<br>";
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,9 +75,9 @@
         </form>
     </div>
 </main>
-<footer>
+<footer class="footer">
     <p>© 2025 Icebreaker Finance. All rights reserved.</p>
-</footer>
+    </footer>
 
 <script src="script.js"></script>
 

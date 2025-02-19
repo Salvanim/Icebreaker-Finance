@@ -4,7 +4,7 @@ require __DIR__ . '/model/db.php';
 
 // Check if the user is an admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    die("Access Denied");
+    header("Location: index.php");
 }
 
 // Function to generate a user row

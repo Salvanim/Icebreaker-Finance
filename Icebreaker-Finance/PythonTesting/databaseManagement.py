@@ -17,7 +17,7 @@ class DatabaseManager():
             database=database
         )
         self.cursor = self.db_connection.cursor()
-    
+
     def execute(self, *command, multiline=True, fetchType="all", size=1, multi=False):
         output = []
         if multiline:
@@ -29,7 +29,7 @@ class DatabaseManager():
                 self.cursor.execute(com, multi=multi)
                 output.append(self.fetch(fetchType, size))
         return output
-    
+
     def viewColumnEqual(self, tableName, columnName, columnData):
         columnDataString = f"'{columnData}'" if isinstance(columnData, str) else str(columnData)
         return self.execute(f"SELECT * FROM {self.database}.{tableName} WHERE {columnName} = {columnDataString};")
@@ -69,7 +69,7 @@ class DatabaseManager():
     def info(self):
         self.cursor.execute(f"""SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{self.database}';""")
         tables = [row[0] for row in self.cursor.fetchall()]
-        
+
         tableColumnNames = {}
         for table in tables:
             self.cursor.execute(f"""SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{self.database}' AND TABLE_NAME = '{table}';""")
@@ -81,9 +81,9 @@ class DatabaseManager():
         selection = selection.lower()
         try:
             case = switchObject.switch(
-                "all", self.cursor.fetchall, 
-                "many", self.cursor.fetchmany, 
-                "one", self.cursor.fetchone, 
+                "all", self.cursor.fetchall,
+                "many", self.cursor.fetchmany,
+                "one", self.cursor.fetchone,
                 "warn", self.cursor.fetchwarnings,
                 end=self.cursor.fetchall
             )
@@ -94,7 +94,7 @@ class DatabaseManager():
     def close(self):
         self.cursor.close()
         self.db_connection.close()
-    
+
     def open(self):
         self.db_connection = mysql.connector.connect(
             host=self.host,
@@ -104,7 +104,7 @@ class DatabaseManager():
             database=self.database
         )
         self.cursor = self.db_connection.cursor()
-    
+
     def getTableNames(self):
         return list(self.info().keys())
 
@@ -116,13 +116,13 @@ class DatabaseManager():
             self.resetPrimary(tableName, 1)
     
     def primaryKeys(self, tableName):
-        output = self.execute(f"""SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
-                                  WHERE TABLE_SCHEMA = '{self.database}' 
-                                  AND TABLE_NAME = '{tableName}' 
+        output = self.execute(f"""SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                                  WHERE TABLE_SCHEMA = '{self.database}'
+                                  AND TABLE_NAME = '{tableName}'
                                   AND COLUMN_KEY = 'PRI';""")
         self.commit()
         return output[0][0][0] if output and output[0] else None
-    
+
     def resetPrimary(self, tableName, startValue):
         primaryName = self.primaryKeys(tableName)
         if primaryName:
@@ -130,6 +130,6 @@ class DatabaseManager():
             self.execute(f"UPDATE {tableName} SET {primaryName} = (@new_id := @new_id + 1) ORDER BY {primaryName};")
             self.execute(f"ALTER TABLE {tableName} AUTO_INCREMENT = {startValue};")
             self.commit()
-    
+
     def commit(self):
         self.db_connection.commit()

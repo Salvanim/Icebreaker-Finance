@@ -1,119 +1,178 @@
+import sys
+import inspect
+import logging
+from datetime import date
 from databaseManagement import DatabaseManager
 from dataVisualizationGenerator import definePlot
 from imageProcessor import ImageProcessor
-import sys
-import inspect
-from datetime import date
 import switchObject as switch
-import inspect
 
-class generalProgram():
-    def __init__(self, host="mysql.neit.edu", port="5500", user="capstone_202520_winteriscoming", password="Winteriscoming", database="capstone_202520_winteriscoming", data=[], columns=[], image_path="", imageSize=(), encoded_char_set="", round=0, mode='RGBA'):
-        self.monthList = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-        self.dataPlot = self.plot(data, columns)
-        self.db = self.dbManager(host, port, user, password, database)
-        self.image = self.imageProcess(image_path, imageSize, encoded_char_set, round, mode)
-        self.functions = switch()
-        for method in self.get_class_methods("generalProgram"):
-            self.functions[method] = self(method)
+class GeneralProgram:
+    def __init__(self, host="mysql.neit.edu", port="5500", user="capstone_202520_winteriscoming",
+                 password="Winteriscoming", database="capstone_202520_winteriscoming",
+                 data=None, columns=None, image_path="", image_size=(), encoded_char_set="",
+                 round_factor=0, mode='RGBA'):
+
+        # Default to empty lists if not provided
+        data = data or []
+        columns = columns or []
+
+        self.month_list = [
+            "January", "February", "March", "April", "May", "June", "July",
+            "August", "September", "October", "November", "December"
+        ]
+
+        # Initialize components
+        self.data_plot = self.plot(data, columns)
+        self.db = self.db_manager(host, port, user, password, database)
+        self.image = self.image_process(image_path, image_size, encoded_char_set, round_factor, mode)
+
+        # Dynamically map class methods
+        self.functions = switch.SwitchObject()
+        for method in self.get_class_methods():
+            self.functions[method] = getattr(self, method)
         self.functions.end = "No Method Found"
 
     def plot(self, data, columns):
         return definePlot(data, columns)
 
-    def dbManager(self, host, port, user, password, database):
+    def db_manager(self, host, port, user, password, database):
         return DatabaseManager(host, port, user, password, database)
 
-    def imageProcess(self, image_path="", imageSize=(), encoded_char_set="", round=0, mode='RGBA'):
-        return ImageProcessor(image_path=image_path, imageSize=imageSize, encoded_char_set=encoded_char_set, round=round, mode=mode)
+    def image_process(self, image_path="", image_size=(), encoded_char_set="", round_factor=0, mode='RGBA'):
+        return ImageProcessor(image_path=image_path, imageSize=image_size,
+                              encoded_char_set=encoded_char_set, round=round_factor, mode=mode)
 
-    def get_class_methods(cls):
-        methods = inspect.getmembers(cls, predicate=lambda x: inspect.isfunction(x) or inspect.ismethod(x))
+    def get_class_methods(self):
+        """Returns a list of all public methods in this class."""
+        methods = inspect.getmembers(self, predicate=inspect.ismethod)
         return [name for name, _ in methods if not name.startswith("__")]
 
-    def libraryMethodsDictionary(self):
+    def library_methods_dictionary(self):
+        """Returns a dictionary of available methods from different modules."""
         return {
             "DatabaseManager": self.get_class_methods(DatabaseManager),
             "definePlot": str(self.get_class_methods(definePlot) if inspect.isclass(definePlot) else "Function"),
             "ImageProcessor": str(self.get_class_methods(ImageProcessor))
         }
 
-    def get_methods(self):
-        """Extracts all function names from a given class dynamically."""
-        if "generalProgram" not in globals():
-            print(f"Error: Class '{"generalProgram"}' not found.")
-            return
+    def get_plot(self, table_name):
+        """Fetches data from a table and generates a plot."""
+        try:
+            columns = self.db.execute(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = %s;",
+                (table_name,)
+            )
+            table_data = self.db.viewTable(table_name)
 
-        cls = globals()["generalProgram"]
-        methods = [name for name, _ in inspect.getmembers(cls, predicate=inspect.isfunction)]
-        print("\n".join(methods))
+            if not table_data:
+                logging.warning(f"No data found for table {table_name}.")
+                return None
 
-    def getPlot(self, tableName):
-        columns = self.db.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{tableName}';")
-        table = self.db.viewTable(tableName)
-        print(table)
-        self.dataPlot.setData(table, columns)
-        return self.dataPlot
+            self.data_plot.setData(table_data, columns)
+            return self.data_plot
 
-    def generateBarGraph(self, debtID, userID):
-        result = self.db.execute(f"SELECT amount_owed, interest_rate, min_payment FROM debt_lookup WHERE debt_id = {debtID} AND user_id = {userID};")
+        except Exception as e:
+            logging.error(f"Error in get_plot: {e}")
+            return None
 
-        if not result:
-            print("No data found for the given debt ID and user ID.")
-            return
+    def generate_bar_graph(self, debt_id, user_id):
+        """Generates a bar graph of debt payments over time."""
+        try:
+            result = self.db.execute(
+                "SELECT amount_owed, interest_rate, min_payment FROM debt_lookup WHERE debt_id = %s AND user_id = %s;",
+                (debt_id, user_id)
+            )
 
-        amount, rate, minPayment = result[0]
-        payoffDate, months = self.calculatePayoffDate(amount, rate, minPayment)
-        debtAmounts = self.getDebtAmountsEachMonth(amount, rate, minPayment, months)
-        debtMonths = self.monthFromNow(months)
-        return debtMonths, debtAmounts
+            if not result:
+                logging.warning("No data found for the given debt ID and user ID.")
+                return None
 
-    def getDebtAmountsEachMonth(self, amount, rate, minPayment, amountOfMonths):
+            amount, rate, min_payment = result[0]
+            payoff_date, months = self.calculate_payoff_date(amount, rate, min_payment)
+            debt_amounts = self.get_debt_amounts_each_month(amount, rate, min_payment, months)
+            debt_months = self.month_from_now(months)
+            return debt_months, debt_amounts
+
+        except Exception as e:
+            logging.error(f"Error in generate_bar_graph: {e}")
+            return None
+
+    def get_debt_amounts_each_month(self, amount, rate, min_payment, months):
+        """Calculates remaining debt for each month."""
         balance = amount
-        debtAmounts = []
-        monthlyRate = (rate / 100) / 12
-        for _ in range(amountOfMonths):
-            balance = balance * (1 + monthlyRate) - minPayment
-            if balance < 0:
-                balance = 0
-            debtAmounts.append(balance)
-        return debtAmounts
+        debt_amounts = []
+        monthly_rate = (rate / 100) / 12
 
-    def monthFromNow(self, monthDistance):
+        for _ in range(months):
+            balance = balance * (1 + monthly_rate) - min_payment
+            balance = max(balance, 0)  # Ensure it never goes below zero
+            debt_amounts.append(balance)
+
+        return debt_amounts
+
+    def month_from_now(self, month_distance):
+        """Returns a list of future months from today."""
         months = []
         today = date.today()
-        for i in range(monthDistance):
+
+        for i in range(month_distance):
             year_offset = (today.month - 1 + i) // 12
             month_index = (today.month - 1 + i) % 12
-            months.append(f"{self.monthList[month_index]} {today.year + year_offset}")
+            months.append(f"{self.month_list[month_index]} {today.year + year_offset}")
+
         return months
 
-    def calculatePayoffDate(self, amount, rate, payment):
+    def calculate_payoff_date(self, amount, rate, payment):
+        """Calculates when a debt will be paid off given a payment plan."""
         balance = amount
-        monthlyRate = (rate / 100) / 12
+        monthly_rate = (rate / 100) / 12
         months = 0
         today = date.today()
 
-        if payment <= balance * monthlyRate:
+        if payment <= balance * monthly_rate:
             return "The monthly payment must be greater than the first month's interest. Please check your numbers and try again.", 0
 
         while balance > 0:
-            balance = balance * (1 + monthlyRate) - payment
+            balance = balance * (1 + monthly_rate) - payment
             months += 1
-            if balance < 0:
-                balance = 0
 
-        payoffYear = today.year + (today.month - 1 + months) // 12
-        payoffMonth = (today.month - 1 + months) % 12 + 1
-        return f"{self.monthList[payoffMonth - 1]} {today.day}, {payoffYear}", months
+        payoff_year = today.year + (today.month - 1 + months) // 12
+        payoff_month = (today.month - 1 + months) % 12 + 1
+        return f"{self.month_list[payoff_month - 1]} {today.day}, {payoff_year}", months
 
-    def callFunction(self, name, params):
-        return self.functions(name, params, True)
+    def call_function(self, name, params):
+        """Dynamically calls a method by name with given parameters."""
+        try:
+            if name in self.functions:
+                return self.functions[name](*params)
+            else:
+                logging.error(f"Function '{name}' not found.")
+                return "Function not found."
 
-    def execute(self, command):
-        return self.db.execute(command)
+        except Exception as e:
+            logging.error(f"Error calling function {name}: {e}")
+            return None
 
-func_name = sys.argv[1]
-args = sys.argv[2:]
-program = generalProgram()
-program.callFunction(func_name, args)
+    def execute(self, command, params=None):
+        """Executes a database command with optional parameters."""
+        try:
+            return self.db.execute(command, params)
+        except Exception as e:
+            logging.error(f"Database execution error: {e}")
+            return None
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        logging.error("No function name provided.")
+        sys.exit(1)
+
+    func_name = sys.argv[1]
+    args = sys.argv[2:]
+
+    program = GeneralProgram()
+    result = program.call_function(func_name, args)
+
+    if result is not None:
+        print(result)

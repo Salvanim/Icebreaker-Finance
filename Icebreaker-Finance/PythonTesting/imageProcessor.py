@@ -89,3 +89,27 @@ def select_file():
     root = tk.Tk()
     root.withdraw()
     return filedialog.askopenfilename(title="Select an Image File", filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.bmp;*.gif")])
+
+# Example of use with ImageProcessor
+image_path = select_file()
+
+# Ensure a file was selected
+if image_path:
+    # Create an ImageProcessor instance
+    processor = ImageProcessor(image_path=image_path)
+
+    # Print the original encoded character set
+    print("Original Encoded Image Data:")
+    print(processor.encoded_char_set)
+
+    reconstructed_image = processor.getImage()
+
+    # Save the reconstructed image
+    reconstructed_image.save("reconstructed.png")
+
+    # Display the reconstructed image
+    reconstructed_image.show()
+
+    print("Reconstructed image saved as 'reconstructed.png'.")
+else:
+    print("No file selected. Exiting.")

@@ -385,10 +385,63 @@ body {
     text-transform: uppercase;
 }
 
-/* Optional: Add a small top margin to the table if needed */
+/* top margin on table */
 .debt-table {
     margin-top: 15px;
 }
+
+/* Center the entire Debt Buster Tools page */
+.debt-buster-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* Ensure each section is centered */
+.tool-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Center the resource lists */
+.debt-buster-container .resource-list {
+    list-style: none;
+    padding: 0;
+    display: inline-block;
+    text-align: left; /* Align text inside the list */
+}
+
+/* Center each list item */
+.debt-buster-container .resource-list li {
+    background: #fff;
+    padding: 10px;
+    margin: 5px auto;
+    border-radius: 5px;
+    max-width: 500px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Center TinyMCE Editor */
+.admin-tools {
+    text-align: center;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+/* TinyMCE Editor Styling */
+#admin-editor {
+    width: 100%;
+    min-height: 200px;
+    border-radius: 5px;
+}
+
+
 
 /* FOOTER */
 .footer {

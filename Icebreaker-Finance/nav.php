@@ -38,11 +38,6 @@ if (session_status() === PHP_SESSION_NONE) {
 </nav>
 
 
-
-
-
-
-
 <!-- Login Modal -->
 <div id="loginModal" class="modal">
     <div class="modal-content">

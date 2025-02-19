@@ -1,3 +1,7 @@
+<?php
+session_start();
+require __DIR__ . '/model/db.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -12,12 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password'])) {
+        // Set session variables
         $_SESSION['isLoggedIn'] = true;
-        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
+        $_SESSION['role'] = $user['role']; // Store user role in session
 
-        echo "Login successful!";
-        header("Location: account.php");
+        // Redirect based on role
+        if ($user['role'] === 'admin') {
+            
+            header("Location: admin-account-mgmt.php");
+        } else {
+            header("Location: account.php");
+        }
         exit;
     } else {
         echo "Invalid username or password.";

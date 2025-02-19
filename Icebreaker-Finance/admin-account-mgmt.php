@@ -1,10 +1,24 @@
 <?php
 session_start();
 require __DIR__ . '/model/db.php';
-
-// Check if the user is an admin
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// Ensure the user is an admin
+if (!isset($_SESSION['isLoggedIn']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: index.php");
+    exit;
+}
+
+// Check if database connection exists
+if (!$db) {
+    die("Database connection failed.");
+}
+
+// Fetch users from the database
+try {
+    $stmt = $db->prepare("SELECT user_id, username, email, `role` FROM users");
+    $stmt->execute();
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Error fetching users: " . $e->getMessage());
 }
 
 // Function to generate a user row
@@ -95,6 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <?php echo getUserData(); ?>
 </table>
 
+
+
+
 <footer class="footer">
     <p>© 2025 Icebreaker Finance. All rights reserved.</p>
 </footer>
@@ -121,5 +138,6 @@ $(document).ready(function() {
 });
 </script>
 
+<script src="script.js"></script>
 </body>
 </html>

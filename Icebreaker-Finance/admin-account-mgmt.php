@@ -40,12 +40,28 @@ function getUserData() {
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $finalOutput = "";
 
+        #<button class='toggle-admin' data-id='{$userID}'>Toggle Admin</button>
+
         foreach ($users as $user) {
             $userID = htmlspecialchars($user['user_id']);
             $username = htmlspecialchars($user['username']);
             $role = htmlspecialchars($user['role']);
 
-            $toggleAdminButton = "<button class='toggle-admin' data-id='{$userID}'>Toggle Admin</button>";
+            $toggleAdminButton = "";
+            if($role == "admin"){
+                $toggleAdminButton =
+                "<label class='toggle-switch'>
+                    <input type='checkbox' checked=True class='toggle-admin' data-id='{$userID}'/>
+                    <span class='slider'></span>
+                 </label>";
+            } else {
+                $toggleAdminButton =
+                "<label class='toggle-switch'>
+                    <input type='checkbox' class='toggle-admin' data-id='{$userID}'/>
+                    <span class='slider'></span>
+                 </label>";
+            }
+
             $deleteUserButton = "<button class='delete-user' data-id='{$userID}'>Delete</button>";
 
             $finalOutput .= addToTable($username, $role, $toggleAdminButton, $deleteUserButton);
@@ -122,7 +138,6 @@ $(document).ready(function() {
         let userId = $(this).data("id");
         $.post("admin-account-mgmt.php", { action: "toggleAdmin", userId: userId }, function(response) {
             let result = JSON.parse(response);
-            alert(result.success || result.error);
             location.reload();
         });
     });

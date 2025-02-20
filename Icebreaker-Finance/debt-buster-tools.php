@@ -4,7 +4,7 @@ require __DIR__ . '/model/db.php';
 // Fetch stored content for the admin tools section
 $stmt = $db->prepare("SELECT content FROM site_content WHERE section = 'admin_tools'");
 $stmt->execute();
-$adminContent = $stmt->fetchColumn(); 
+$adminContent = $stmt->fetchColumn();
 
 if ($adminContent === false) {
     echo "<p style='color: red;'>Error: No content found for 'admin_tools'.</p>";
@@ -17,7 +17,7 @@ if ($adminContent === false) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Debt Buster Tools</title>
     <link rel="stylesheet" href="style.css">
-    
+
     <!-- TinyMCE (Only Load for Admins) -->
     <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') : ?>
     <script src="https://cdn.tiny.cloud/1/btynv80wdibaaigf2qfyqy5hj0bwp5cryjqsdr6sfpmd2azh/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
@@ -34,7 +34,7 @@ if ($adminContent === false) {
     <section class="tool-section">
         <div class="tool-box">
             <div class="admin-content">
-                <?= !empty($adminContent) ? nl2br($adminContent) : "<p>No admin content available.</p>"; ?>
+                <?= !empty($adminContent) ? nl2br($adminContent) . "<button type=" : "<p>No admin content available.</p>"; ?>
             </div>
         </div>
     </section>
@@ -53,11 +53,11 @@ if ($adminContent === false) {
         tinymce.init({
             selector: '#admin-editor',
             plugins: [
-                'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 
+                'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media',
                 'searchreplace', 'table', 'visualblocks', 'wordcount',
                 'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker',
-                'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 
-                'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 
+                'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage',
+                'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags',
                 'autocorrect', 'typography', 'inlinecss', 'markdown', 'importword', 'exportword', 'exportpdf'
             ],
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',

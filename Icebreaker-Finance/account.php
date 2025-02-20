@@ -1,10 +1,34 @@
 <?php
-    session_start();
+session_start();
+require __DIR__ . '/model/db.php';
 
-    // set user role dynamically from session
-    $userRole = $_SESSION['userRole'] ?? 'user'; // default role is 'user'
+// Ensure user is logged in
+if (!isset($_SESSION['isLoggedIn'])) {
+    header("Location: index.php");
+    exit;
+}
+
+// Get user role
+$userRole = $_SESSION['role'] ?? 'user';
+$userId = $_SESSION['user_id'] ?? null;
+
+// Function to fetch debt activity securely
+function getDebtActivity($userId) {
+    global $db;
+    if (!$db) return [];
+    
+    try {
+        $stmt = $db->prepare("SELECT d.debt_type, p.payment_date, p.payment_amount FROM debt_lookup d JOIN debt_payments p ON d.debt_id = p.debt_id WHERE d.user_id = ? ORDER BY p.payment_date DESC");
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return [];
+    }
+}
+
+$recentActivity = getDebtActivity($userId);
+
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,42 +36,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Details</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
 </head>
 <body>
-    <!--include nav bar-->
     <?php include 'nav.php'; ?>  
 
-    <!-- Modify Accounts Section (Admin Only) -->
     <?php if ($userRole === "admin") : ?>
         <div class="modify-accounts">
             <button onclick="window.location.href='admin-account-mgmt.php'">Modify Accounts</button>
         </div>
     <?php endif; ?>
 
-    <!-- debt list section -->
-    <div class="debts">
-        <h2 class="debt-account">Debts</h2>
-        <div class="debt-item">
-            <div>Credit Card</div>
-            <button onclick="window.location.href='edit-debt.php'">GO</button>
-        </div>
-        <div class="debt-item">
-            <div>Car</div>
-            <button onclick="window.location.href='edit-debt.php'">GO</button>
-        </div>
-        <div class="debt-item">
-            <div>House</div>
-            <button onclick="window.location.href='edit-debt.php'">GO</button>
-        </div>
-        <div class="debt-item">
-            <button onclick="window.location.href='all-debts.php'">All</button>
-        </div>
-    </div>
-
-    <!-- debt tracker section-->
     <div class="container">
         <h1>Debt Tracker</h1>
-        <div id="error-message" class="error-message"></div>
         <form id="debt-form">
             <input type="text" id="debt-name" placeholder="Debt Name" required />
             <select id="method">
@@ -80,7 +82,6 @@
         </div>
     </div>
 
-    <!-- recent activity on all accounts by date -->
     <div class="container">
         <h2>Recent Activity</h2>
         <table>
@@ -93,32 +94,22 @@
                 </tr>
             </thead>
             <tbody>
-                <?php
-                    // placeholder data - !!!need to add database fetch to this!!!!
-                    $recentActivity = [
-                        ["2025-02-06", "Credit Card", "Payment Made", "-$200.00"],
-                        ["2025-02-05", "Car Loan", "Interest Applied", "+$15.75"],
-                        ["2025-02-04", "House Loan", "Minimum Payment", "-$1,000.00"],
-                        ["2025-02-03", "Credit Card", "New Purchase", "+$75.25"],
-                    ];
-
-                    // loop through recent activity and display
-                    foreach ($recentActivity as $activity) {
-                        echo "<tr>";
-                        echo "<td>{$activity[0]}</td>"; // date
-                        echo "<td>{$activity[1]}</td>"; // account
-                        echo "<td>{$activity[2]}</td>"; // activity
-                        echo "<td>{$activity[3]}</td>"; // amount
-                        echo "</tr>";
-                    }
-                ?>
+                <?php foreach ($recentActivity as $activity): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($activity['payment_date']) ?></td>
+                        <td><?= htmlspecialchars($activity['debt_type']) ?></td>
+                        <td>Payment Made</td>
+                        <td>$<?= htmlspecialchars(number_format($activity['payment_amount'], 2)) ?></td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
-    <footer class="footer">
-    <p>© 2025 Icebreaker Finance. All rights reserved.</p>
-    </footer>
-    <script src="script.js"></script>
 
+    <footer class="footer">
+        <p>© 2025 Icebreaker Finance. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>

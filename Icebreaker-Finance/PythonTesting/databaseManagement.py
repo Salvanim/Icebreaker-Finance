@@ -114,7 +114,7 @@ class DatabaseManager():
         self.commit()
         if resetPrimary:
             self.resetPrimary(tableName, 1)
-    
+
     def primaryKeys(self, tableName):
         output = self.execute(f"""SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
                                   WHERE TABLE_SCHEMA = '{self.database}'

@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     }
 
     if (count($updates) > 0) {
-        $query = "UPDATE users SET " . implode(", ", $updates) . " WHERE id = :user_id";
+        $query = "UPDATE users SET " . implode(", ", $updates) . " WHERE user_id = ?";
         $stmt = $db->prepare($query);
         $stmt->execute($params);
         echo "Account updated successfully!";

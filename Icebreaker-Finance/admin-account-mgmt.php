@@ -122,7 +122,6 @@ $(document).ready(function() {
         let userId = $(this).data("id");
         $.post("admin-account-mgmt.php", { action: "toggleAdmin", userId: userId }, function(response) {
             let result = JSON.parse(response);
-            alert(result.success || result.error);
             location.reload();
         });
     });

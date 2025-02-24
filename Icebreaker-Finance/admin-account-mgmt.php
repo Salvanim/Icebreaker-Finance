@@ -57,7 +57,7 @@ function getUserData() {
             } else {
                 $toggleAdminButton =
                 "<label class='toggle-switch'>
-                    <input type='checkbox' class='toggle-admin' data-id='{$userID}'/>
+                    <input type='checkbox' checked=False class='toggle-admin' data-id='{$userID}'/>
                     <span class='slider'></span>
                  </label>";
             }

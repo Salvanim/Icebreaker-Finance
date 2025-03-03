@@ -52,7 +52,9 @@ require __DIR__ . '/model/db.php';
 <section class="debt-method">
     
     <div class="container">
-        <div id="error-message" class="error-message"></div>
+        <div id="error-message" class="error-message">
+
+    </div>
 
         <!-- plus button to show and hide debt Form -->
         <button class="add-debt-btn" onclick="toggleDebtForm()">+</button>

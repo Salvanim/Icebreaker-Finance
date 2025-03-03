@@ -13,11 +13,6 @@ if (session_status() === PHP_SESSION_NONE) {
                 <a href="#" class="dropbtn" onclick="toggleDropdown(event)">Resources ▼</a>
                 <ul class="dropdown-content" id="dropdown-menu">
                     <li><a href="debt-buster-tools.php">Debt Buster Tools</a></li>
-
-                    <!-- Show Admin Panel Link Only for Admins -->
-                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') : ?>
-                        <li><a href="admin-account-mgmt.php">User Account Mgmt</a></li>
-                    <?php endif; ?>
                 </ul>
             </li>
 

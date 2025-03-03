@@ -7,25 +7,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Unauthorized access.");
     }
 
-    $editor_content = $_POST['editor_content'] ?? '';
+    $editor_content = trim($_POST['editor_content'] ?? '');
 
-    // Check if content exists
-    $stmt = $db->prepare("SELECT * FROM site_content WHERE section = 'admin_tools'");
-    $stmt->execute();
-    $existing = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($existing) {
-        // Update existing content
-        $stmt = $db->prepare("UPDATE site_content SET content = ? WHERE section = 'admin_tools'");
-        $stmt->execute([$editor_content]);
-    } else {
-        // Insert new content
+    if (!empty($editor_content)) {
+        // Insert new content instead of updating
         $stmt = $db->prepare("INSERT INTO site_content (section, content) VALUES ('admin_tools', ?)");
         $stmt->execute([$editor_content]);
+
+        $_SESSION['message'] = "Resource added successfully!";
+    } else {
+        $_SESSION['message'] = "Content cannot be empty.";
     }
+}
 
     // Redirect back to the Debt Buster Tools page
     header("Location: debt-buster-tools.php");
     exit;
-}
+
 ?>

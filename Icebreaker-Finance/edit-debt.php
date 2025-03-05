@@ -36,7 +36,7 @@ function getDebtPayments($debtId) {
 
     try {
         $stmt = $db->prepare("
-            SELECT payment_id, payment_date, payment_amount 
+            SELECT payment_id, payment_date, payment_amount
             FROM debt_payments
             WHERE debt_id = ?
             ORDER BY payment_date DESC
@@ -134,3 +134,4 @@ if (!$debt) {
 
 </body>
 </html>
+

@@ -121,22 +121,22 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Error: debt-list element not found");
             return;
         }
-    
+
         debtList.innerHTML = "";
-    
+
         if (debts.length === 0) {
             debtList.innerHTML = "<tr><td colspan='6' class='text-muted'>No debts added yet.</td></tr>";
             document.getElementById("total-debt").textContent = "$0.00";
             return;
         }
-    
+
         debts.forEach(debt => {
             console.log("Debt Object:", debt); // Debugging each debt object
-    
+
             const amountOwed = Number(debt.amount_owed) || 0;
             const minPayment = Number(debt.min_payment) || 0;
             const interestRate = Number(debt.interest_rate) || 0;
-    
+
             const row = document.createElement("tr");
             row.id = `debt-row-${debt.debt_id}`;
             row.innerHTML = `
@@ -149,21 +149,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     <button class="delete-btn" onclick="deleteDebt(${debt.debt_id})">Delete</button>
                 </td>
             `;
-    
+
             debtList.appendChild(row);
         });
-    
+
         // Update total debt
         const totalDebt = debts.reduce((sum, debt) => sum + (Number(debt.amount_owed) || 0), 0);
         document.getElementById("total-debt").textContent = `$${totalDebt.toFixed(2)}`;
     }
-    
-    
+
+
 
     // Function to delete a debt
     window.deleteDebt = function (debtId) {
         if (!confirm("Are you sure you want to delete this debt?")) return;
-    
+
         fetch("delete-debts.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },

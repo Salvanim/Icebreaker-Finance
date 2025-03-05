@@ -1,95 +1,117 @@
-import sys
-import inspect
-from datetime import date
-from databaseManagement import DatabaseManager
-from dataVisualizationGenerator import definePlot
-from imageProcessor import ImageProcessor
-import switchObject as switch
+import matplotlib.pyplot as plt
+import pandas as pd
+from PIL import Image
+import random
 
-class GeneralProgram:
-    def __init__(self, host="mysql.neit.edu", port="5500", user="capstone_202520_winteriscoming",
-                 password="Winteriscoming", database="capstone_202520_winteriscoming",
-                 data=None, columns=None, image_path="", image_size=(), encoded_char_set="",
-                 round_factor=0, mode='RGBA'):
+class DefinePlot:
+    def __init__(self, data=[], columns=[]):
+        self.data = data
+        self.columns = columns
+        self.dataframe = pd.DataFrame(data, columns=columns)
+        self.columnNames = list(self.dataframe.columns)
+        self.fig = None
+        self.methodVariables = {
+            "bar": ["xColumnName", "yColumnName", "title", "xlabel", "ylabel", "color", "edgecolor", "linewidth"],
+            "hist": ["columnName", "title", "xlabel", "ylabel", "bins", "color", "edgecolor", "linestyle", "alpha"],
+            "pie": ["columnName", "columnLabels", "title", "explode", "autopct", "colors", "shadow"],
+            "scatter": ["xColumnName", "yColumnName", "title", "xlabel", "ylabel", "cName", "sName", "marker", "alpha"],
+            "box": ["*columnNames", "title", "xlabel", "ylabel", "vert", "patch_artist", "boxprops", "medianprops"],
+            "line": ["xColumnName", "yColumnName", "title", "xlabel", "ylabel", "color", "linewidth", "marker", "markersize", "linestyle"],
+            "heat": ["columnName", "title", "xlabel", "ylabel", "cmap", "interpolation"]
+        }
 
-        # Default to empty lists if not provided
-        data = data or []
-        columns = columns or []
+    def setData(self, newData):
+        self.data = newData
+        self.dataframe = pd.DataFrame(self.data, columns=self.columns)
+        self.columnNames = list(self.dataframe.columns)
 
-        self.month_list = [
-            "January", "February", "March", "April", "May", "June", "July",
-            "August", "September", "October", "November", "December"
-        ]
+    def setColumns(self, newColumns):
+        self.columns = newColumns
+        self.dataframe = pd.DataFrame(self.data, columns=self.columns)
+        self.columnNames = list(self.dataframe.columns)
 
-        # Initialize components
-        self.data_plot = self.plot(data, columns)
-        self.db = self.db_manager(host, port, user, password, database)
-        self.image = self.image_process(image_path, image_size, encoded_char_set, round_factor, mode)
+    def bar(self, xColumnName, yColumnName, title='', xlabel='', ylabel='', color='green', edgecolor='blue', linewidth=2):
+        self.fig, ax = plt.subplots()
+        ax.bar(self.dataframe[xColumnName], self.dataframe[yColumnName], color=color, edgecolor=edgecolor, linewidth=linewidth)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
-        # Dynamically map class methods
-        self.functions = switch.SwitchObject()
-        for method in self.get_class_methods():
-            self.functions[method] = getattr(self, method)
-        self.functions.end = "No Method Found"
+    def hist(self, columnName, title='', xlabel='', ylabel='', bins=25, color='green', edgecolor='blue', linestyle='--', alpha=0.5):
+        self.fig, ax = plt.subplots()
+        ax.hist(self.dataframe[columnName], bins=bins, color=color, edgecolor=edgecolor, linestyle=linestyle, alpha=alpha)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
-    def plot(self, data, columns):
-        return definePlot(data, columns)
+    def pie(self, columnName, columnLabels=[], title='', explode=[], autopct='%1.2f%%', colors=[], shadow=False):
+        self.fig, ax = plt.subplots()
+        data = list(self.dataframe[columnName])
+        columnLabels.extend(["" for _ in range(len(data) - len(columnLabels))])
+        explode.extend([0 for _ in range(len(data) - len(explode))])
+        colors.extend(["#"+''.join(random.choices('0123456789ABCDEF', k=6)) for _ in range(len(data) - len(colors))])
 
-    def db_manager(self, host, port, user, password, database):
-        return DatabaseManager(host, port, user, password, database)
+        ax.pie(data, labels=columnLabels, explode=explode, colors=tuple(colors), autopct=autopct, shadow=shadow)
+        ax.set_title(title)
 
-    def image_process(self, image_path="", image_size=(), encoded_char_set="", round_factor=0, mode='RGBA'):
-        return ImageProcessor(image_path=image_path, imageSize=image_size,
-                              encoded_char_set=encoded_char_set, round=round_factor, mode=mode)
+    def scatter(self, xColumnName, yColumnName, title='', xlabel='', ylabel='', cName="", sName="", marker='D', alpha=0.5):
+        self.fig, ax = plt.subplots()
+        if cName and sName:
+            ax.scatter(self.dataframe[xColumnName], self.dataframe[yColumnName], c=self.dataframe[cName], s=self.dataframe[sName], marker=marker, alpha=alpha)
+        elif cName:
+            ax.scatter(self.dataframe[xColumnName], self.dataframe[yColumnName], c=self.dataframe[cName], marker=marker, alpha=alpha)
+        elif sName:
+            ax.scatter(self.dataframe[xColumnName], self.dataframe[yColumnName], s=self.dataframe[sName], marker=marker, alpha=alpha)
+        else:
+            ax.scatter(self.dataframe[xColumnName], self.dataframe[yColumnName], marker=marker, alpha=alpha)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
-    def get_class_methods(self):
-        """Returns a list of all public methods in this class."""
-        methods = inspect.getmembers(self, predicate=inspect.ismethod)
-        return [name for name, _ in methods if not name.startswith("__")]
+    def boxPlot(self, *columnNames, title="", xlabel="", ylabel="", vert=True, patch_artist=False, boxprops=dict(facecolor='skyblue'), medianprops=dict(color='red')):
+        self.fig, ax = plt.subplots()
+        data = [self.dataframe[column] for column in columnNames]
+        ax.boxplot(data, vert=vert, patch_artist=patch_artist, boxprops=boxprops, medianprops=medianprops)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
+        ax.set_xticklabels(columnNames if vert else ax.get_yticks())
 
-    def call_function(self, name, params):
-        """Dynamically calls a method by name with given parameters, including submethods."""
-        try:
-            obj = self
-            parts = name.split('.')
+    def line(self, xColumnName, yColumnName, title="", xlabel="", ylabel="", color='', linewidth=3, marker='o', markersize=15, linestyle='--'):
+        self.fig, ax = plt.subplots()
+        if not color:
+            color = "#"+''.join(random.choices('0123456789ABCDEF', k=6))
+        ax.plot(self.dataframe[xColumnName], self.dataframe[yColumnName], color=color, linewidth=linewidth, marker=marker, markersize=markersize, linestyle=linestyle)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
-            # Traverse through nested objects (e.g., 'db.execute')
-            for part in parts[:-1]:
-                obj = getattr(obj, part, None)
-                if obj is None:
-                    return f"Error: '{part}' not found"
+    def heatMap(self, columnName, title="", xlabel="", ylabel="", cmap='viridis', interpolation='nearest'):
+        self.fig, ax = plt.subplots()
+        img = ax.imshow(self.dataframe[columnName].values.reshape(-1, 1), cmap=cmap, interpolation=interpolation)
+        plt.colorbar(img, ax=ax)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
 
-            method_name = parts[-1]
-            if hasattr(obj, method_name):
-                method = getattr(obj, method_name)
-                if callable(method):
-                    return method(*params)
-                else:
-                    return f"Error: '{method_name}' is not callable."
-            else:
-                return f"Error: Method '{method_name}' not found."
+    def show(self):
+        if self.fig:
+            plt.show()
+        else:
+            print("No plot has been created yet.")
 
-        except Exception as e:
-            return f"Error: {e}"
+    def save(self, location):
+        if self.fig:
+            self.fig.savefig(location)
+        else:
+            print("No plot has been created yet.")
 
-    def execute(self, command, params=None):
-        """Executes a database command with optional parameters."""
-        try:
-            return self.db.execute(command, params)
-        except Exception:
-            return None
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Error: No function name provided.")
-        sys.exit(1)
-
-    func_name = sys.argv[1]  # e.g., "db.execute" or "image.process_image"
-    args = sys.argv[2:]  # Any additional arguments
-
-    program = GeneralProgram()
-    result = program.call_function(func_name, args)
-
-    if result is not None:
-        print(result)
+    def getImage(self):
+        if self.fig:
+            import io
+            buf = io.BytesIO()
+            self.fig.savefig(buf)
+            buf.seek(0)
+            return Image.open(buf)
+        else:
+            print("No plot has been created yet.")

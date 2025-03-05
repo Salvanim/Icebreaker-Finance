@@ -58,8 +58,9 @@ if (!empty($payments)) {
     $chronologicalPayments = array_reverse($payments);
     $plotDataString = "";
     $amountOwed = $debt["amount_owed"];
+    $interestRate = $debt["interest_rate"]/100;
     foreach ($chronologicalPayments as $payment) {
-        $calculatedChange = $amountOwed-$payment['payment_amount'];
+        $calculatedChange = ($amountOwed + $amountOwed*$interestRate)-$payment['payment_amount'];
         $plotDataString .= $payment['payment_date']. "," . $calculatedChange . "$";
         $amountOwed = $calculatedChange;
     }

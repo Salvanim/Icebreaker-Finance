@@ -51,6 +51,62 @@ function getDebtPayments($debtId) {
 $debt = getDebtDetails($debtId, $userId);
 $payments = getDebtPayments($debtId);
 
+// Generate plot image if payments exist
+$imageSrc = '';
+if (!empty($payments)) {
+    // Generate plot data
+    $chronologicalPayments = array_reverse($payments);
+    $plotData = [];
+    foreach ($chronologicalPayments as $payment) {
+        $plotData[] = [
+            (string)$payment['payment_date'],  // Force string type for dates
+            (float)$payment['payment_amount']
+        ];
+    }
+
+    $input = [
+        'plot_type' => "line",
+        'data' => $plotData,
+        'columns' => ["Date", "Amount"],
+        'plot_args' => [
+            'xColumnName' => "Date",
+            'yColumnName' => "Amount",
+            'title' => "Payment History",
+            'xlabel' => "Date",
+            'ylabel' => "Amount ($)",
+            'color' => "blue",
+            'linewidth' => 2,
+            'marker' => "o"
+        ]
+    ];
+
+    // Generate validated JSON
+    try {
+        $json_input = json_encode($input, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+    } catch (JsonException $e) {
+        error_log("JSON encode error: " . $e->getMessage());
+        die("Error generating visualization");
+    }
+
+    // Debugging: Save JSON to file
+    file_put_contents('debug_input.json', $json_input);
+
+    // Execute Python script
+    $command = "python PythonTesting/dataVisualizationGenerator.py " . escapeshellarg($json_input) . " 2>&1";
+    $output = shell_exec($command);
+    echo $output;
+    // Log results
+    error_log("COMMAND: " . $command);
+    error_log("PYTHON OUTPUT: " . $output);
+
+    // Validate base64 output
+    if ($output && base64_decode(trim($output), true)) {
+        $imageSrc = 'data:image/png;base64,' . trim($output);
+    } else {
+        error_log("Failed to generate plot. Output: " . $output);
+    }
+}
+
 if (!$debt) {
     echo "<p class='error'>Debt not found.</p>";
     exit;
@@ -75,7 +131,15 @@ if (!$debt) {
     <p>Minimum Payment: $<?= number_format($debt['min_payment'], 2) ?></p>
     <p>Interest Rate: <?= number_format($debt['interest_rate'], 2) ?>%</p>
 
-        <!-- Edit Debt Form -->
+    <!-- Payment History Visualization -->
+    <?php if ($imageSrc): ?>
+        <h3>Payment History</h3>
+        <img src="<?= $imageSrc ?>" alt="Payment History Plot">
+    <?php elseif (!empty($payments)): ?>
+        <p class="error">Failed to generate payment history visualization.</p>
+    <?php endif; ?>
+
+    <!-- Edit Debt Form -->
     <h3>Edit Debt Details</h3>
     <form id="edit-debt-form" action="update-debt.php" method="POST">
         <input type="hidden" name="debt_id" value="<?= $debtId; ?>">
@@ -94,7 +158,6 @@ if (!$debt) {
 
         <button type="submit">Save Changes</button>
     </form>
-
 
     <!-- Payment Transactions -->
     <h3>Payment Transactions</h3>
@@ -134,4 +197,3 @@ if (!$debt) {
 
 </body>
 </html>
-

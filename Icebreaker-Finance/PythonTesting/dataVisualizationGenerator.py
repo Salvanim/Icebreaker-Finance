@@ -1,7 +1,12 @@
+import sys
+import json
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
-from PIL import Image
-import random
+import io
+import base64
+
 
 class DefinePlot:
     def __init__(self, data=[], columns=[]):
@@ -10,108 +15,48 @@ class DefinePlot:
         self.dataframe = pd.DataFrame(data, columns=columns)
         self.columnNames = list(self.dataframe.columns)
         self.fig = None
-        self.methodVariables = {
-            "bar": ["xColumnName", "yColumnName", "title", "xlabel", "ylabel", "color", "edgecolor", "linewidth"],
-            "hist": ["columnName", "title", "xlabel", "ylabel", "bins", "color", "edgecolor", "linestyle", "alpha"],
-            "pie": ["columnName", "columnLabels", "title", "explode", "autopct", "colors", "shadow"],
-            "scatter": ["xColumnName", "yColumnName", "title", "xlabel", "ylabel", "cName", "sName", "marker", "alpha"],
-            "box": ["*columnNames", "title", "xlabel", "ylabel", "vert", "patch_artist", "boxprops", "medianprops"],
-            "line": ["xColumnName", "yColumnName", "title", "xlabel", "ylabel", "color", "linewidth", "marker", "markersize", "linestyle"],
-            "heat": ["columnName", "title", "xlabel", "ylabel", "cmap", "interpolation"]
-        }
 
-    def setData(self, newData):
-        self.data = newData
-        self.dataframe = pd.DataFrame(self.data, columns=self.columns)
-        self.columnNames = list(self.dataframe.columns)
-
-    def setColumns(self, newColumns):
-        self.columns = newColumns
-        self.dataframe = pd.DataFrame(self.data, columns=self.columns)
-        self.columnNames = list(self.dataframe.columns)
-
-    def bar(self, xColumnName, yColumnName, title='', xlabel='', ylabel='', color='green', edgecolor='blue', linewidth=2):
-        self.fig, ax = plt.subplots()
-        ax.bar(self.dataframe[xColumnName], self.dataframe[yColumnName], color=color, edgecolor=edgecolor, linewidth=linewidth)
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-
-    def hist(self, columnName, title='', xlabel='', ylabel='', bins=25, color='green', edgecolor='blue', linestyle='--', alpha=0.5):
-        self.fig, ax = plt.subplots()
-        ax.hist(self.dataframe[columnName], bins=bins, color=color, edgecolor=edgecolor, linestyle=linestyle, alpha=alpha)
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-
-    def pie(self, columnName, columnLabels=[], title='', explode=[], autopct='%1.2f%%', colors=[], shadow=False):
-        self.fig, ax = plt.subplots()
-        data = list(self.dataframe[columnName])
-        columnLabels.extend(["" for _ in range(len(data) - len(columnLabels))])
-        explode.extend([0 for _ in range(len(data) - len(explode))])
-        colors.extend(["#"+''.join(random.choices('0123456789ABCDEF', k=6)) for _ in range(len(data) - len(colors))])
-
-        ax.pie(data, labels=columnLabels, explode=explode, colors=tuple(colors), autopct=autopct, shadow=shadow)
-        ax.set_title(title)
-
-    def scatter(self, xColumnName, yColumnName, title='', xlabel='', ylabel='', cName="", sName="", marker='D', alpha=0.5):
-        self.fig, ax = plt.subplots()
-        if cName and sName:
-            ax.scatter(self.dataframe[xColumnName], self.dataframe[yColumnName], c=self.dataframe[cName], s=self.dataframe[sName], marker=marker, alpha=alpha)
-        elif cName:
-            ax.scatter(self.dataframe[xColumnName], self.dataframe[yColumnName], c=self.dataframe[cName], marker=marker, alpha=alpha)
-        elif sName:
-            ax.scatter(self.dataframe[xColumnName], self.dataframe[yColumnName], s=self.dataframe[sName], marker=marker, alpha=alpha)
-        else:
-            ax.scatter(self.dataframe[xColumnName], self.dataframe[yColumnName], marker=marker, alpha=alpha)
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-
-    def boxPlot(self, *columnNames, title="", xlabel="", ylabel="", vert=True, patch_artist=False, boxprops=dict(facecolor='skyblue'), medianprops=dict(color='red')):
-        self.fig, ax = plt.subplots()
-        data = [self.dataframe[column] for column in columnNames]
-        ax.boxplot(data, vert=vert, patch_artist=patch_artist, boxprops=boxprops, medianprops=medianprops)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.set_title(title)
-        ax.set_xticklabels(columnNames if vert else ax.get_yticks())
-
-    def line(self, xColumnName, yColumnName, title="", xlabel="", ylabel="", color='', linewidth=3, marker='o', markersize=15, linestyle='--'):
-        self.fig, ax = plt.subplots()
-        if not color:
-            color = "#"+''.join(random.choices('0123456789ABCDEF', k=6))
-        ax.plot(self.dataframe[xColumnName], self.dataframe[yColumnName], color=color, linewidth=linewidth, marker=marker, markersize=markersize, linestyle=linestyle)
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-
-    def heatMap(self, columnName, title="", xlabel="", ylabel="", cmap='viridis', interpolation='nearest'):
-        self.fig, ax = plt.subplots()
-        img = ax.imshow(self.dataframe[columnName].values.reshape(-1, 1), cmap=cmap, interpolation=interpolation)
-        plt.colorbar(img, ax=ax)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.set_title(title)
-
-    def show(self):
+    def getImageBase64(self):
         if self.fig:
-            plt.show()
-        else:
-            print("No plot has been created yet.")
-
-    def save(self, location):
-        if self.fig:
-            self.fig.savefig(location)
-        else:
-            print("No plot has been created yet.")
-
-    def getImage(self):
-        if self.fig:
-            import io
             buf = io.BytesIO()
-            self.fig.savefig(buf)
+            self.fig.savefig(buf, format='png')
             buf.seek(0)
-            return Image.open(buf)
+            return base64.b64encode(buf.getvalue()).decode('utf-8')
         else:
-            print("No plot has been created yet.")
+            return "No plot has been created yet."
+
+    def line(self, xColumnName, yColumnName, title='', xlabel='', ylabel='', color='blue', linewidth=2, marker='o'):
+        self.fig, ax = plt.subplots()
+        ax.plot(self.dataframe[xColumnName], self.dataframe[yColumnName], color=color, linewidth=linewidth, marker=marker)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+
+def validate_json(raw_input):
+    try:
+        return json.loads(raw_input)
+    except json.JSONDecodeError as e:
+        print(f"Invalid JSON: {e}")
+        print(f"Raw input received: {raw_input}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Error: No input provided")
+        sys.exit(1)
+
+    try:
+        # Get and validate input
+        raw_input = sys.argv[1]
+        input_data = validate_json(raw_input)
+
+        # Rest of plotting logic
+        plotter = DefinePlot(input_data['data'], input_data['columns'])
+        plot_method = getattr(plotter, input_data['plot_type'])
+        plot_method(**input_data['plot_args'])
+        print(plotter.getImageBase64())
+
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.stderr.write(f"FULL ERROR: {str(e)}\n")
+        sys.exit(1)

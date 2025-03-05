@@ -132,5 +132,6 @@ if (!$debt) {
     <h3>Apply Interest</h3>
     <button onclick="applyInterest(<?= $debtId ?>)">Apply Interest</button>
 
+
 </body>
 </html>

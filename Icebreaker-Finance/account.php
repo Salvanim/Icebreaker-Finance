@@ -96,10 +96,6 @@ $recentActivity = getDebtActivity($userId);
     <?php else : ?>
         <p class="text-muted">No debts added yet.</p>
     <?php endif; ?>
-
-    <div class="debt-item">
-        <button onclick="window.location.href='all-debts.php'">All</button>
-    </div>
 </div>
 
 
@@ -197,7 +193,6 @@ $recentActivity = getDebtActivity($userId);
             <?php endif; ?>
         </tbody>
     </table>
-    <p>Total Debt: <span id="total-debt">$0.00</span></p>
 </div>
 
     </div>

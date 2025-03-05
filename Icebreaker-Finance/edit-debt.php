@@ -57,8 +57,11 @@ if (!empty($payments)) {
     // Generate plot data
     $chronologicalPayments = array_reverse($payments);
     $plotDataString = "";
+    $amountOwed = $debt["amount_owed"];
     foreach ($chronologicalPayments as $payment) {
-        $plotDataString = $payment['payment_date']. "," . $payment['payment_amount'] . "\n";
+        $calculatedChange = $amountOwed-$payment['payment_amount'];
+        $plotDataString .= $payment['payment_date']. "," . $calculatedChange . "$";
+        $amountOwed = $calculatedChange;
     }
     $input = $plotDataString;
 
@@ -75,9 +78,8 @@ if (!empty($payments)) {
 
     $argumentsJson = json_encode($graphArguments);
     // Execute Python script
-    $command = 'python PythonTesting/dataVisualizationGenerator.py ' . '"' . escapeshellarg($input) .' 2>&1';
+    $command = 'python PythonTesting/dataVisualizationGenerator.py ' . escapeshellarg($input);
     $output = shell_exec($command);
-
     // Validate base64 output
     if ($output && base64_decode(trim($output), true)) {
         $imageSrc = 'data:image/png;base64,' . trim($output);
@@ -109,14 +111,6 @@ if (!$debt) {
     <p>Amount Owed: <span id="amount-owed">$<?= number_format($debt['amount_owed'], 2) ?></span></p>
     <p>Minimum Payment: $<?= number_format($debt['min_payment'], 2) ?></p>
     <p>Interest Rate: <?= number_format($debt['interest_rate'], 2) ?>%</p>
-
-    <!-- Payment History Visualization -->
-    <?php if ($imageSrc): ?>
-        <h3>Payment History</h3>
-        <img src="<?= $imageSrc ?>" alt="Payment History Plot">
-    <?php elseif (!empty($payments)): ?>
-        <p class="error">Failed to generate payment history visualization.</p>
-    <?php endif; ?>
 
     <!-- Edit Debt Form -->
     <h3>Edit Debt Details</h3>
@@ -173,6 +167,13 @@ if (!$debt) {
     <!-- Interest Adjustment -->
     <h3>Apply Interest</h3>
     <button onclick="applyInterest(<?= $debtId ?>)">Apply Interest</button>
+
+    <!-- Payment History Visualization (Plot at the bottom) -->
+    <?php if ($imageSrc): ?>
+        <img src="<?= $imageSrc ?>" alt="Payment History Plot">
+    <?php elseif (!empty($payments)): ?>
+        <p class="error">Failed to generate payment history visualization.</p>
+    <?php endif; ?>
 
 </body>
 </html>

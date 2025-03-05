@@ -32,14 +32,6 @@ class DefinePlot:
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
 
-def validate_json(raw_input):
-    try:
-        return json.loads(raw_input)
-    except json.JSONDecodeError as e:
-        print(f"Invalid JSON: {e}")
-        print(f"Raw input received: {raw_input}")
-        sys.exit(1)
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Error: No input provided")
@@ -48,12 +40,28 @@ if __name__ == "__main__":
     try:
         # Get and validate input
         raw_input = sys.argv[1]
-        input_data = validate_json(raw_input)
+        input_data = raw_input
+        individualRows = input_data.split("\n")
+        finalData = []
+
+        for row in individualRows:
+            finalData.append(row.split(","))
 
         # Rest of plotting logic
-        plotter = DefinePlot(input_data['data'], input_data['columns'])
-        plot_method = getattr(plotter, input_data['plot_type'])
-        plot_method(**input_data['plot_args'])
+        plotter = DefinePlot(finalData, ["Date", "Amount"])
+        plotter.line("Date", "Amount")
+        plot_method = getattr(plotter, "line")
+        plotArguments = {
+            "xColumnName" : "Date",
+            "yColumnName" : "Amount",
+            "title" : "Payment History",
+            "xlabel" : "Date",
+            "ylabel" : "Amount ($)",
+            "color" : "blue",
+            "linewidth" : 2,
+            "marker" : "o"
+        }
+        plot_method(**plotArguments)
         print(plotter.getImageBase64())
 
     except Exception as e:

@@ -56,48 +56,15 @@ $imageSrc = '';
 if (!empty($payments)) {
     // Generate plot data
     $chronologicalPayments = array_reverse($payments);
-    $plotData = [];
+    $plotDataString = "";
     foreach ($chronologicalPayments as $payment) {
-        $plotData[] = [
-            (string)$payment['payment_date'],  // Force string type for dates
-            (float)$payment['payment_amount']
-        ];
+        $plotDataString = $payment['payment_date']. "," . $payment['payment_amount'] . "\n";
     }
-
-    $input = [
-        'plot_type' => "line",
-        'data' => $plotData,
-        'columns' => ["Date", "Amount"],
-        'plot_args' => [
-            'xColumnName' => "Date",
-            'yColumnName' => "Amount",
-            'title' => "Payment History",
-            'xlabel' => "Date",
-            'ylabel' => "Amount ($)",
-            'color' => "blue",
-            'linewidth' => 2,
-            'marker' => "o"
-        ]
-    ];
-
-    // Generate validated JSON
-    try {
-        $json_input = json_encode($input, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
-    } catch (JsonException $e) {
-        error_log("JSON encode error: " . $e->getMessage());
-        die("Error generating visualization");
-    }
-
-    // Debugging: Save JSON to file
-    file_put_contents('debug_input.json', $json_input);
+    $input = $plotDataString;
 
     // Execute Python script
-    $command = "python PythonTesting/dataVisualizationGenerator.py " . escapeshellarg($json_input) . " 2>&1";
+    $command = "python PythonTesting/dataVisualizationGenerator.py " . $input . " 2>&1";
     $output = shell_exec($command);
-    echo $output;
-    // Log results
-    error_log("COMMAND: " . $command);
-    error_log("PYTHON OUTPUT: " . $output);
 
     // Validate base64 output
     if ($output && base64_decode(trim($output), true)) {

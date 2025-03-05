@@ -1,1 +1,0 @@
-{"plot_type":"line","data":[["2025-02-02",19],["2025-03-02",19]],"columns":["Date","Amount"],"plot_args":{"xColumnName":"Date","yColumnName":"Amount","title":"Payment History","xlabel":"Date","ylabel":"Amount ($)","color":"blue","linewidth":2,"marker":"o"}}

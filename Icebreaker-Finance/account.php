@@ -12,13 +12,18 @@ if (!isset($_SESSION['isLoggedIn'])) {
 $userRole = $_SESSION['role'] ?? 'user';
 $userId = $_SESSION['user_id'] ?? null;
 
-// Function to fetch debt activity securely
-function getDebtActivity($userId) {
+// Fetch user debts for the debt list
+function getUserDebts($userId) {
     global $db;
-    if (!$db) return [];
-    
+    if (!$db || !$userId) return [];
+
     try {
-        $stmt = $db->prepare("SELECT d.debt_type, p.payment_date, p.payment_amount FROM debt_lookup d JOIN debt_payments p ON d.debt_id = p.debt_id WHERE d.user_id = ? ORDER BY p.payment_date DESC");
+        $stmt = $db->prepare("
+            SELECT debt_id, debt_name, debt_type, amount_owed, min_payment, interest_rate
+            FROM debt_lookup
+            WHERE user_id = ?
+            ORDER BY debt_id DESC
+        ");
         $stmt->execute([$userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -26,9 +31,32 @@ function getDebtActivity($userId) {
     }
 }
 
+// Fetch payment history to show recent activity
+function getDebtActivity($userId) {
+    global $db;
+    if (!$db || !$userId) return [];
+    
+    try {
+        $stmt = $db->prepare("
+            SELECT d.debt_type, p.payment_date, p.payment_amount 
+            FROM debt_lookup d 
+            JOIN debt_payments p ON d.debt_id = p.debt_id 
+            WHERE d.user_id = ? 
+            ORDER BY p.payment_date DESC
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return [];
+    }
+}
+
+// get data for the page
+$debts = getUserDebts($userId);
 $recentActivity = getDebtActivity($userId);
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,63 +76,132 @@ $recentActivity = getDebtActivity($userId);
         </div>
     <?php endif; ?>
 
-    <div class="container">
-        <h1>Debt Tracker</h1>
-        <form id="debt-form">
-            <input type="text" id="debt-name" placeholder="Debt Name" required />
-            <select id="method">
-                <option value="" disabled selected>Select Debt Method</option>
-                <option value="snowball">Snowball Method</option>
-                <option value="avalanche">Avalanche Method</option>
-            </select>
-            <input type="number" id="debt-amount" placeholder="Debt Amount" required />
-            <input type="number" id="min-payment" placeholder="Minimum Payment" required />
-            <input type="number" step="0.01" id="interest-rate" placeholder="Interest Rate (%)" required />
-            <button type="submit">Add Debt</button>
-        </form>
-        <div class="debt-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Debt Name</th>
-                        <th>Debt Amount</th>
-                        <th>Minimum Payment</th>
-                        <th>Interest Rate (%)</th>
-                        <th>Payoff Date</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="debt-list"></tbody>
-            </table>
-            <div class="total-amount">
-                <strong>Total Debt:</strong> $<span id="total-debt">0</span>
-            </div>
-        </div>
+    <!-- debt list section -->
+    <div class="debts">
+    <h2 class="debt-account">Debts</h2>
+
+    <!-- Toggle Button for Sorting -->
+    <div class="toggle-method">
+        <button id="snowball-btn" class="active" onclick="toggleDebtMethod('snowball')">Snowball</button>
+        <button id="avalanche-btn" onclick="toggleDebtMethod('avalanche')">Avalanche</button>
     </div>
 
+    <?php if (!empty($debts)) : ?>
+        <?php foreach ($debts as $debt) : ?>
+            <div class="debt-item">
+                <div><?= htmlspecialchars($debt['debt_name']) ?></div>
+                <button onclick="window.location.href='edit-debt.php?debt_id=<?= $debt['debt_id'] ?>'">GO</button>
+            </div>
+        <?php endforeach; ?>
+    <?php else : ?>
+        <p class="text-muted">No debts added yet.</p>
+    <?php endif; ?>
+
+    <div class="debt-item">
+        <button onclick="window.location.href='all-debts.php'">All</button>
+    </div>
+</div>
+
+
+
+
+        <!--recent debt activity-->
     <div class="container">
-        <h2>Recent Activity</h2>
-        <table>
-            <thead>
+    <h2 class="section-title">Recent Debt Activity</h2>
+    <div class="divider"></div>
+
+    <?php if (!empty($recentActivity)) : ?>
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
                 <tr>
-                    <th>Date</th>
-                    <th>Account</th>
-                    <th>Action</th>
-                    <th>Amount</th>
+                    <th>Debt Type</th>
+                    <th>Payment Date</th>
+                    <th>Payment Amount</th>
                 </tr>
             </thead>
-            <tbody>
-                <?php foreach ($recentActivity as $activity): ?>
+            <tbody id="recent-debt-list">
+                <?php foreach ($recentActivity as $activity) : ?>
                     <tr>
-                        <td><?= htmlspecialchars($activity['payment_date']) ?></td>
                         <td><?= htmlspecialchars($activity['debt_type']) ?></td>
-                        <td>Payment Made</td>
-                        <td>$<?= htmlspecialchars(number_format($activity['payment_amount'], 2)) ?></td>
+                        <td><?= htmlspecialchars(date("M d, Y", strtotime($activity['payment_date']))) ?></td>
+                        <td>$<?= number_format($activity['payment_amount'], 2) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+    <?php else : ?>
+        <p class="text-muted">No recent debt payments recorded.</p>
+    <?php endif; ?>
+</div>
+
+
+    <!-- Debt Tracker -->
+<section class="banner">
+    <p class="banner-text">Try our debt repayment calculator</p>
+</section>
+
+<section class="debt-method">
+    
+    <div class="container">
+        <div id="error-message" class="error-message">
+
     </div>
+
+        <!-- plus button to show and hide debt Form -->
+        <button class="add-debt-btn" onclick="toggleDebtForm()">+</button>
+
+        <!-- hidden form -->
+        <div id="debt-form-container" class="hidden">
+            <form id="debt-form" onsubmit="event.preventDefault(); addDebt();">
+                <input type="text" id="debt-name" placeholder="Debt Name" required />
+                <select id="method" required>
+                    <option value="" disabled selected>Select Debt Method</option>
+                    <option value="snowball">Snowball Method</option>
+                    <option value="avalanche">Avalanche Method</option>
+                </select>
+                <input type="number" id="debt-amount" placeholder="Debt Amount" required />
+                <input type="number" id="min-payment" placeholder="Minimum Payment" required />
+                <input type="number" step="0.01" id="interest-rate" placeholder="Interest Rate (%)" required />
+                <button type="button" class="go-button" onclick="addDebt()">GO</button>
+            </form>
+        </div>
+
+        <!-- Debt Table -->
+<div class="debt-table">
+    <table>
+        <thead>
+            <tr class="table-header">
+                <th>Debt Name</th>
+                <th>Debt Type</th>
+                <th>Amount Owed</th>
+                <th>Minimum Payment</th>
+                <th>Interest Rate (%)</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="debt-list">
+            <?php if (!empty($debts)): ?>
+                <?php foreach ($debts as $debt): ?>
+                    <tr id="debt-row-<?= $debt['debt_id']; ?>">
+                        <td><?= htmlspecialchars($debt['debt_name']); ?></td>
+                        <td><?= htmlspecialchars($debt['debt_type']); ?></td>
+                        <td>$<?= number_format($debt['amount_owed'], 2); ?></td>
+                        <td>$<?= number_format($debt['min_payment'], 2); ?></td>
+                        <td><?= number_format($debt['interest_rate'], 2); ?>%</td>
+                        <td><button class="delete-btn" onclick="deleteDebt(<?=$debt['debt_id']; ?>)">Delete</button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan="6" class="text-muted">No debts added yet.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+    <p>Total Debt: <span id="total-debt">$0.00</span></p>
+</div>
+
+    </div>
+</section>
 
     <footer class="footer">
         <p>© 2025 Icebreaker Finance. All rights reserved.</p>

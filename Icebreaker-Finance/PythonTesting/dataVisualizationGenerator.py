@@ -1,95 +1,70 @@
 import sys
-import inspect
-from datetime import date
-from databaseManagement import DatabaseManager
-from dataVisualizationGenerator import definePlot
-from imageProcessor import ImageProcessor
-import switchObject as switch
+import json
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import pandas as pd
+import io
+import base64
 
-class GeneralProgram:
-    def __init__(self, host="mysql.neit.edu", port="5500", user="capstone_202520_winteriscoming",
-                 password="Winteriscoming", database="capstone_202520_winteriscoming",
-                 data=None, columns=None, image_path="", image_size=(), encoded_char_set="",
-                 round_factor=0, mode='RGBA'):
 
-        # Default to empty lists if not provided
-        data = data or []
-        columns = columns or []
+class DefinePlot:
+    def __init__(self, data=[], columns=[]):
+        self.data = data
+        self.columns = columns
+        self.dataframe = pd.DataFrame(data, columns=columns)
+        self.columnNames = list(self.dataframe.columns)
+        self.fig = None
 
-        self.month_list = [
-            "January", "February", "March", "April", "May", "June", "July",
-            "August", "September", "October", "November", "December"
-        ]
+    def getImageBase64(self):
+        if self.fig:
+            buf = io.BytesIO()
+            self.fig.savefig(buf, format='png')
+            buf.seek(0)
+            return base64.b64encode(buf.getvalue()).decode('utf-8')
+        else:
+            return "No plot has been created yet."
 
-        # Initialize components
-        self.data_plot = self.plot(data, columns)
-        self.db = self.db_manager(host, port, user, password, database)
-        self.image = self.image_process(image_path, image_size, encoded_char_set, round_factor, mode)
-
-        # Dynamically map class methods
-        self.functions = switch.SwitchObject()
-        for method in self.get_class_methods():
-            self.functions[method] = getattr(self, method)
-        self.functions.end = "No Method Found"
-
-    def plot(self, data, columns):
-        return definePlot(data, columns)
-
-    def db_manager(self, host, port, user, password, database):
-        return DatabaseManager(host, port, user, password, database)
-
-    def image_process(self, image_path="", image_size=(), encoded_char_set="", round_factor=0, mode='RGBA'):
-        return ImageProcessor(image_path=image_path, imageSize=image_size,
-                              encoded_char_set=encoded_char_set, round=round_factor, mode=mode)
-
-    def get_class_methods(self):
-        """Returns a list of all public methods in this class."""
-        methods = inspect.getmembers(self, predicate=inspect.ismethod)
-        return [name for name, _ in methods if not name.startswith("__")]
-
-    def call_function(self, name, params):
-        """Dynamically calls a method by name with given parameters, including submethods."""
-        try:
-            obj = self
-            parts = name.split('.')
-
-            # Traverse through nested objects (e.g., 'db.execute')
-            for part in parts[:-1]:
-                obj = getattr(obj, part, None)
-                if obj is None:
-                    return f"Error: '{part}' not found"
-
-            method_name = parts[-1]
-            if hasattr(obj, method_name):
-                method = getattr(obj, method_name)
-                if callable(method):
-                    return method(*params)
-                else:
-                    return f"Error: '{method_name}' is not callable."
-            else:
-                return f"Error: Method '{method_name}' not found."
-
-        except Exception as e:
-            return f"Error: {e}"
-
-    def execute(self, command, params=None):
-        """Executes a database command with optional parameters."""
-        try:
-            return self.db.execute(command, params)
-        except Exception:
-            return None
-
+    def line(self, xColumnName, yColumnName, title='', xlabel='', ylabel='', color='blue', linewidth=2, marker='o'):
+        self.fig, ax = plt.subplots()
+        ax.plot(self.dataframe[xColumnName], self.dataframe[yColumnName], color=color, linewidth=linewidth, marker=marker)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Error: No function name provided.")
+        print("Error: No input provided")
         sys.exit(1)
 
-    func_name = sys.argv[1]  # e.g., "db.execute" or "image.process_image"
-    args = sys.argv[2:]  # Any additional arguments
+    try:
+        # Get and validate input
+        raw_input = sys.argv[1]
+        input_data = raw_input
+        individualRows = input_data.split("\n")
+        finalData = []
 
-    program = GeneralProgram()
-    result = program.call_function(func_name, args)
+        for row in individualRows:
+            finalData.append(row.split(","))
 
-    if result is not None:
-        print(result)
+        # Rest of plotting logic
+        plotter = DefinePlot(finalData, ["Date", "Amount"])
+        plotter.line("Date", "Amount")
+        plot_method = getattr(plotter, "line")
+        plotArguments = {
+            "xColumnName" : "Date",
+            "yColumnName" : "Amount",
+            "title" : "Payment History",
+            "xlabel" : "Date",
+            "ylabel" : "Amount ($)",
+            "color" : "blue",
+            "linewidth" : 2,
+            "marker" : "o"
+        }
+        plot_method(**plotArguments)
+        print(plotter.getImageBase64())
+
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.stderr.write(f"FULL ERROR: {str(e)}\n")
+        sys.exit(1)

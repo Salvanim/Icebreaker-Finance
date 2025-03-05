@@ -97,36 +97,39 @@ if (!$debt) {
 
 
     <!-- Payment Transactions -->
-    <h3>Payment Transactions</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Payment Date</th>
-                <th>Amount</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="payment-list">
-            <?php if (!empty($payments)): ?>
-                <?php foreach ($payments as $payment): ?>
-                    <tr id="payment-row-<?= $payment['payment_id'] ?>">
-                        <td><?= date("M d, Y", strtotime($payment['payment_date'])) ?></td>
-                        <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
-                        <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr><td colspan="3" class="text-muted">No payments recorded yet.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+    <!-- Payment Transactions -->
+<h3>Payment Transactions</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Payment Date</th>
+            <th>Amount</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="payment-list">
+        <?php if (!empty($payments)): ?>
+            <?php foreach ($payments as $payment): ?>
+                <tr id="payment-row-<?= $payment['payment_id'] ?>">
+                    <td><?= date("M d, Y", strtotime($payment['payment_date'])) ?></td>
+                    <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
+                    <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
+                </tr>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <tr><td colspan="3" class="text-muted">No payments recorded yet.</td></tr>
+        <?php endif; ?>
+    </tbody>
+</table>
 
     <!-- Add Payment Form -->
     <h3>Add a Payment</h3>
     <form id="add-payment-form">
         <input type="number" id="payment-amount" placeholder="Payment Amount" required>
+        <input type="date" id="payment-date" required>
         <button type="button" onclick="addPayment(<?= $debtId ?>)">Submit</button>
     </form>
+
 
     <!-- Interest Adjustment -->
     <h3>Apply Interest</h3>

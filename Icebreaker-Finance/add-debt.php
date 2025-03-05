@@ -23,8 +23,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     try {
-        $stmt = $db->prepare("INSERT INTO debt_lookup (user_id, debt_type, amount_owed, interest_rate, status, debt_name, debt_vis, min_payment) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $db->prepare("INSERT INTO debt_lookup (user_id, debt_type, amount_owed, interest_rate, status, debt_name, debt_vis, min_payment, date_added) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE())");
         $stmt->execute([$userId, $debtType, $amountOwed, $interestRate, $status, $debtName, $debtVis, $minPayment]);
 
         $debtId = $db->lastInsertId();

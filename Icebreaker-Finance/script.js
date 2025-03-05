@@ -70,6 +70,44 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error("Error:", error));
     };
+
+    window.addPayment = function (debtId) {
+        const paymentAmountInput = document.getElementById("payment-amount");
+        const paymentDateInput = document.getElementById("payment-date");
+        if (!paymentAmountInput || !paymentDateInput) {
+            console.error("Payment input not found.");
+            return;
+        }
+    
+        const paymentAmount = parseFloat(paymentAmountInput.value) || 0;
+        const paymentDate = paymentDateInput.value;
+        if (paymentAmount <= 0 || !paymentDate) {
+            alert("Please enter a valid payment amount and/or date.");
+            return;
+        }
+    
+        const formData = new URLSearchParams();
+        formData.append("debt_id", debtId);
+        formData.append("payment_amount", paymentAmount);
+        formData.append("payment_date", paymentDate);
+    
+        fetch("add-payment.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString(),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Payment added successfully!");
+                location.reload(); // Reload to update payment transactions
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    };
+    
     
     function updateDebtTable() {
         debtList.innerHTML = "";

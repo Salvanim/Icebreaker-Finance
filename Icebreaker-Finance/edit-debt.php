@@ -62,8 +62,20 @@ if (!empty($payments)) {
     }
     $input = $plotDataString;
 
+    $graphArguments = [
+        "xColumnName" => "Date",
+        "yColumnName" => "Amount",
+        "title" => "Payment History",
+        "xlabel" => "Date",
+        "ylabel" => "Amount ($)",
+        "color" => "blue",
+        "linewidth" => 2,
+        "marker" => "o"
+    ];
+
+    $argumentsJson = json_encode($graphArguments);
     // Execute Python script
-    $command = "python PythonTesting/dataVisualizationGenerator.py " . $input . " 2>&1";
+    $command = 'python PythonTesting/dataVisualizationGenerator.py ' . '"' . escapeshellarg($input) .' 2>&1';
     $output = shell_exec($command);
 
     // Validate base64 output

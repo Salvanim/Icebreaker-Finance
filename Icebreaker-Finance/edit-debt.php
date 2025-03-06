@@ -18,7 +18,7 @@ function getDebtDetails($debtId, $userId) {
 
     try {
         $stmt = $db->prepare("
-            SELECT debt_id, debt_name, amount_owed, min_payment, interest_rate
+            SELECT debt_id, debt_name, amount_owed, min_payment, interest_rate, date_added
             FROM debt_lookup
             WHERE debt_id = ? AND user_id = ?
         ");
@@ -48,6 +48,15 @@ function getDebtPayments($debtId) {
     }
 }
 
+function getDatesBetween($startDate, $endDate, &$dates = array()) {
+    $dates[] = $startDate;
+    $nextDate = date('Y-m-d', strtotime($startDate . ' +1 month'));
+    if ($nextDate <= $endDate) {
+        getDatesBetween($nextDate, $endDate, $dates);
+    }
+    return $dates;
+}
+
 $debt = getDebtDetails($debtId, $userId);
 $payments = getDebtPayments($debtId);
 
@@ -58,9 +67,14 @@ if (!empty($payments)) {
     $chronologicalPayments = array_reverse($payments);
     $plotDataString = "";
     $amountOwed = $debt["amount_owed"];
-    $interestRate = $debt["interest_rate"]/100;
+
+    $dateStarted = date_create($debt["date_added"])->format('Y-m-d');
+    $today = date_create("today")->format('Y-m-d');
+    $datesBetween = getDatesBetween($dateStarted, $today);
+    $interestRate = $debt["interest_rate"]/1200;
+
     foreach ($chronologicalPayments as $payment) {
-        $calculatedChange = ($amountOwed + $amountOwed*$interestRate)-$payment['payment_amount'];
+        $calculatedChange = $amountOwed-$payment['payment_amount'];
         $plotDataString .= $payment['payment_date']. "," . $calculatedChange . "$";
         $amountOwed = $calculatedChange;
     }

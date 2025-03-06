@@ -18,7 +18,7 @@ function getDebtDetails($debtId, $userId) {
 
     try {
         $stmt = $db->prepare("
-            SELECT debt_id, debt_name, amount_owed, min_payment, interest_rate
+            SELECT debt_id, debt_name, amount_owed, min_payment, interest_rate, date_added
             FROM debt_lookup
             WHERE debt_id = ? AND user_id = ?
         ");
@@ -48,6 +48,15 @@ function getDebtPayments($debtId) {
     }
 }
 
+function getDatesBetween($startDate, $endDate, &$dates = array()) {
+    $dates[] = $startDate;
+    $nextDate = date('Y-m-d', strtotime($startDate . ' +1 month'));
+    if ($nextDate <= $endDate) {
+        getDatesBetween($nextDate, $endDate, $dates);
+    }
+    return $dates;
+}
+
 $debt = getDebtDetails($debtId, $userId);
 $payments = getDebtPayments($debtId);
 
@@ -57,8 +66,17 @@ if (!empty($payments)) {
     // Generate plot data
     $chronologicalPayments = array_reverse($payments);
     $plotDataString = "";
+    $amountOwed = $debt["amount_owed"];
+
+    $dateStarted = date_create($debt["date_added"])->format('Y-m-d');
+    $today = date_create("today")->format('Y-m-d');
+    $datesBetween = getDatesBetween($dateStarted, $today);
+    $interestRate = $debt["interest_rate"]/1200;
+
     foreach ($chronologicalPayments as $payment) {
-        $plotDataString = $payment['payment_date']. "," . $payment['payment_amount'] . "\n";
+        $calculatedChange = $amountOwed-$payment['payment_amount'];
+        $plotDataString .= $payment['payment_date']. "," . $calculatedChange . "$";
+        $amountOwed = $calculatedChange;
     }
     $input = $plotDataString;
 
@@ -75,9 +93,8 @@ if (!empty($payments)) {
 
     $argumentsJson = json_encode($graphArguments);
     // Execute Python script
-    $command = 'python PythonTesting/dataVisualizationGenerator.py ' . '"' . escapeshellarg($input) .' 2>&1';
+    $command = 'python PythonTesting/dataVisualizationGenerator.py ' . escapeshellarg($input);
     $output = shell_exec($command);
-
     // Validate base64 output
     if ($output && base64_decode(trim($output), true)) {
         $imageSrc = 'data:image/png;base64,' . trim($output);
@@ -114,14 +131,6 @@ if (!$debt) {
             <p><strong>Minimum Payment:</strong> $<?= number_format($debt['min_payment'], 2) ?></p>
             <p><strong>Interest Rate:</strong> <?= number_format($debt['interest_rate'], 2) ?>%</p>
         </div>
-
-    <!-- Payment History Visualization -->
-    <?php if ($imageSrc): ?>
-        <h3>Payment History</h3>
-        <img src="<?= $imageSrc ?>" alt="Payment History Plot">
-    <?php elseif (!empty($payments)): ?>
-        <p class="error">Failed to generate payment history visualization.</p>
-    <?php endif; ?>
 
     <!-- Edit Debt Form -->
     <h3>Edit Debt Details</h3>
@@ -188,6 +197,13 @@ if (!$debt) {
     <!-- Interest Adjustment -->
     <h3>Apply Interest</h3>
     <button onclick="applyInterest(<?= $debtId ?>)">Apply Interest</button>
+
+    <!-- Payment History Visualization (Plot at the bottom) -->
+    <?php if ($imageSrc): ?>
+        <img src="<?= $imageSrc ?>" alt="Payment History Plot">
+    <?php elseif (!empty($payments)): ?>
+        <p class="error">Failed to generate payment history visualization.</p>
+    <?php endif; ?>
 
 </body>
 </html>

@@ -9,7 +9,7 @@ if (!isset($_SESSION['isLoggedIn'])) {
 }
 
 $userId = $_SESSION['user_id'] ?? null;
-$debtId = $_GET['debt_id'] ?? null;
+$debtId = isset($_GET['debt_id']) ? intval($_GET['debt_id']) : null;
 
 // Fetch debt details
 function getDebtDetails($debtId, $userId) {
@@ -60,10 +60,36 @@ function getDatesBetween($startDate, $endDate, &$dates = array()) {
 $debt = getDebtDetails($debtId, $userId);
 $payments = getDebtPayments($debtId);
 
-// Generate plot image if payments exist
+// Prepare payment breakdown data (computed in chronological order)
+$breakdown = [];
+if (!empty($payments)) {
+    $paymentsAscending = array_reverse($payments);
+
+    // Calculate initial balance as current amount owed plus total payments made
+    $totalPayments = array_sum(array_column($payments, 'payment_amount'));
+    $initialBalance = $debt['amount_owed'] + $totalPayments;
+    $runningBalance = $initialBalance;
+    $monthlyInterestRate = $debt["interest_rate"] / 1200;
+
+    foreach ($paymentsAscending as $payment) {
+        $interest = $runningBalance * $monthlyInterestRate;
+        $principal = $payment['payment_amount'] - $interest;
+        if ($principal < 0) {
+            $principal = 0;
+            $interest = $payment['payment_amount'];
+        }
+        $breakdown[$payment['payment_id']] = [
+            'interest' => $interest,
+            'principal' => $principal,
+            'balance_after' => $runningBalance - $principal,
+        ];
+        $runningBalance -= $principal;
+    }
+}
+
+// Generate plot image if payments exist (unchanged from before)
 $imageSrc = '';
 if (!empty($payments)) {
-    // Generate plot data
     $chronologicalPayments = array_reverse($payments);
     $plotDataString = "";
     $amountOwed = $debt["amount_owed"];
@@ -74,8 +100,8 @@ if (!empty($payments)) {
     $interestRate = $debt["interest_rate"]/1200;
 
     foreach ($chronologicalPayments as $payment) {
-        $calculatedChange = $amountOwed-$payment['payment_amount'];
-        $plotDataString .= $payment['payment_date']. "," . $calculatedChange . "$";
+        $calculatedChange = $amountOwed - $payment['payment_amount'];
+        $plotDataString .= $payment['payment_date'] . "," . $calculatedChange . "$";
         $amountOwed = $calculatedChange;
     }
     $input = $plotDataString;
@@ -126,84 +152,95 @@ if (!$debt) {
         <h2 class="text-primary"><?= htmlspecialchars($debt['debt_name']) ?></h2>
 
         <div class="card p-3 mb-4">
-            <p><strong>Amount Owed:</strong> <span id="amount-owed" class="text-danger">$
-                <?= number_format($debt['amount_owed'], 2) ?></span></p>
+            <p><strong>Amount Owed:</strong> <span id="amount-owed" class="text-danger">$<?= number_format($debt['amount_owed'], 2) ?></span></p>
             <p><strong>Minimum Payment:</strong> $<?= number_format($debt['min_payment'], 2) ?></p>
             <p><strong>Interest Rate:</strong> <?= number_format($debt['interest_rate'], 2) ?>%</p>
         </div>
 
-    <!-- Edit Debt Form -->
-    <h3>Edit Debt Details</h3>
-    <form id="edit-debt-form" action="update-debt.php" method="POST">
-        <input type="hidden" name="debt_id" value="<?= $debtId; ?>">
+        <!-- Edit Debt Form -->
+        <h3>Edit Debt Details</h3>
+        <form id="edit-debt-form" action="update-debt.php" method="POST">
+            <input type="hidden" name="debt_id" value="<?= $debtId; ?>">
 
-        <div class="col-md-6">
-            <label for="debt-name" class="form-label">Debt Name:</label>
-            <input type="text" id="edit-debt-name" class="form-control" value="<?= htmlspecialchars($debt['debt_name']); ?>" required>
-        </div>
+            <div class="col-md-6">
+                <label for="debt-name" class="form-label">Debt Name:</label>
+                <input type="text" id="edit-debt-name" name="debt_name" class="form-control" value="<?= htmlspecialchars($debt['debt_name']); ?>" required>
+            </div>
 
-        <div class="col-md-6">
-            <label for="amount-owed-input" class="form-label">Amount Owed:</label>
-            <input type="number" id="edit-debt-amount" class="form-control" value="<?= $debt['amount_owed']; ?>" required>
-        </div>
+            <div class="col-md-6">
+                <label for="amount-owed-input" class="form-label">Amount Owed:</label>
+                <input type="number" id="edit-debt-amount" name="debt_amount" class="form-control" value="<?= $debt['amount_owed']; ?>" required>
+            </div>
 
-        <div class="col-md-6">
-            <label for="min-payment" class="form-label">Minimum Payment:</label>
-            <input type="number" id="edit-min-payment" class="form-control" value="<?= $debt['min_payment']; ?>" required>
-        </div>
+            <div class="col-md-6">
+                <label for="min-payment" class="form-label">Minimum Payment:</label>
+                <input type="number" id="edit-min-payment" name="min_payment" class="form-control" value="<?= $debt['min_payment']; ?>" required>
+            </div>
 
-        <div class="col-md-6">
-            <label for="interest-rate" class="form-label">Interest Rate (%):</label>
-            <input type="number" step="0.01" id="edit-interest-rate" class="form-control" value="<?= $debt['interest_rate']; ?>" required>
-        </div>
+            <div class="col-md-6">
+                <label for="interest-rate" class="form-label">Interest Rate (%):</label>
+                <input type="number" step="0.01" id="edit-interest-rate" name="interest_rate" class="form-control" value="<?= $debt['interest_rate']; ?>" required>
+            </div>
 
-        <div class="col-12">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </div>
-    </form>
+            <div class="col-12 mt-3">
+                <button type="button" onclick="updateDebt(<?= $debtId ?>)" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
 
-    <!-- Payment Transactions -->
-    <h3>Payment Transactions</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Payment Date</th>
-                <th>Amount</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="payment-list">
-            <?php if (!empty($payments)): ?>
-                <?php foreach ($payments as $payment): ?>
-                    <tr id="payment-row-<?= $payment['payment_id'] ?>">
-                        <td><?= date("M d, Y", strtotime($payment['payment_date'])) ?></td>
-                        <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
-                        <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr><td colspan="3" class="text-muted">No payments recorded yet.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+        <!-- Payment Transactions -->
+        <h3 class="mt-4">Payment Transactions</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Payment Date</th>
+                    <th>Amount</th>
+                    <th>Principal</th>
+                    <th>Interest</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="payment-list">
+                <?php if (!empty($payments)): ?>
+                    <?php
+                    // Display in descending order (latest first)
+                    foreach ($payments as $payment):
+                        $break = isset($breakdown[$payment['payment_id']]) ? $breakdown[$payment['payment_id']] : ['principal' => 0, 'interest' => 0];
+                    ?>
+                        <tr id="payment-row-<?= $payment['payment_id'] ?>">
+                            <td><?= date("M d, Y", strtotime($payment['payment_date'])) ?></td>
+                            <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
+                            <td>$<?= number_format($break['principal'], 2) ?></td>
+                            <td>$<?= number_format($break['interest'], 2) ?></td>
+                            <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr><td colspan="5" class="text-muted">No payments recorded yet.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
 
-    <!-- Add Payment Form -->
-    <h3>Add a Payment</h3>
-    <form id="add-payment-form">
-        <input type="number" id="payment-amount" placeholder="Payment Amount" required>
-        <button type="button" onclick="addPayment(<?= $debtId ?>)">Submit</button>
-    </form>
+        <!-- Add Payment Form (unchanged) -->
+        <h3>Add a Payment</h3>
+        <form id="add-payment-form" class="row g-3">
+            <div class="col-md-6">
+                <input type="number" id="payment-amount" class="form-control" placeholder="Payment Amount" required>
+            </div>
+            <div class="col-md-6">
+                <input type="date" id="payment-date" class="form-control" required>
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn btn-primary" onclick="addPayment(<?= $debtId ?>)">Submit</button>
+            </div>
+        </form>
 
-    <!-- Interest Adjustment -->
-    <h3>Apply Interest</h3>
-    <button onclick="applyInterest(<?= $debtId ?>)">Apply Interest</button>
+        <!-- Payment History Visualization (Plot at the bottom) -->
+        <?php if ($imageSrc): ?>
+            <img src="<?= $imageSrc ?>" alt="Payment History Plot">
+        <?php elseif (!empty($payments)): ?>
+            <p class="error">Failed to generate payment history visualization.</p>
+        <?php endif; ?>
 
-    <!-- Payment History Visualization (Plot at the bottom) -->
-    <?php if ($imageSrc): ?>
-        <img src="<?= $imageSrc ?>" alt="Payment History Plot">
-    <?php elseif (!empty($payments)): ?>
-        <p class="error">Failed to generate payment history visualization.</p>
-    <?php endif; ?>
-
+    </div>
 </body>
 </html>

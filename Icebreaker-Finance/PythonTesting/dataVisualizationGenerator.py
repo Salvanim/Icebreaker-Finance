@@ -40,22 +40,6 @@ class DefinePlot:
         # Set the x-axis label format for the dates
         ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
 
-        # Get the positions of the labels
-        labels = ax.get_xticklabels()
-        positions = [label.get_position()[0] for label in labels]
-
-        # Check the distance between adjacent labels and stagger if necessary
-        threshold = 0.1  # Define a threshold distance to check for overlap
-        for i in range(1, len(positions)):
-            if positions[i] - positions[i - 1] < threshold:  # If labels are too close
-                labels[i].set_horizontalalignment('right')
-                labels[i].set_position((positions[i], 0.05))  # shift up slightly
-                labels[i - 1].set_horizontalalignment('left')
-                labels[i - 1].set_position((positions[i - 1], -0.05))  # shift down slightly
-            else:
-                labels[i].set_horizontalalignment('center')  # Reset to normal alignment
-                labels[i].set_position((positions[i], 0))  # Reset position
-
         # Adjust layout to prevent overlap
         plt.tight_layout()
 

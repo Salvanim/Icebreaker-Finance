@@ -170,6 +170,26 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(error => console.error("Error:", error));
     };
 
+    window.deletePayment = function (paymentId) {
+        if (!confirm("Are you sure you want to delete this payment?")) return;
+
+        fetch("delete-payment.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `payment_id=${paymentId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Payment deleted successfully!");
+                window.reload();
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    };
+
     window.updateDebt = function (debtId) {
         // Fetch input elements
         const debtNameInput = document.getElementById("edit-debt-name");
@@ -209,20 +229,19 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: formData.toString(),
         })
+
         .then(response => response.json())
         .then(data => {
             console.log("Update Response:", data);
             if (data.success) {
                 alert("Debt updated successfully!");
-                location.href = "account.php"; // Redirect to main debts page
+                location.href = "edit-debt.php?debt_id=2" + debtId; // Redirect to main debts page
             } else {
                 alert("Error: " + data.message);
             }
         })
         .catch(error => console.error("Error:", error));
     };
-
-
 
     function updateDebtsSection() {
         if (!debtsContainer) {

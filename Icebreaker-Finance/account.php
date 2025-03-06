@@ -64,6 +64,7 @@ $recentActivity = getDebtActivity($userId);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Details</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
 </head>
@@ -175,6 +176,7 @@ $recentActivity = getDebtActivity($userId);
                 <th>Action</th>
             </tr>
         </thead>
+        
         <tbody id="debt-list">
             <?php if (!empty($debts)): ?>
                 <?php foreach ($debts as $debt): ?>

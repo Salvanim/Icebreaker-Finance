@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             if (data.success) {
                 alert("Payment added successfully!");
-                location.reload(); // Reload to update payment transactions
+                location.reload(); 
             } else {
                 alert("Error: " + data.message);
             }
@@ -158,6 +158,60 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error("Error:", error));
     };
+
+    window.updateDebt = function (debtId) {
+        // Fetch input elements
+        const debtNameInput = document.getElementById("edit-debt-name");
+        const debtAmountInput = document.getElementById("edit-debt-amount");
+        const minPaymentInput = document.getElementById("edit-min-payment");
+        const interestRateInput = document.getElementById("edit-interest-rate");
+    
+        // Check if any element is missing
+        if (!debtNameInput || !debtAmountInput || !minPaymentInput || !interestRateInput) {
+            console.error("One or more input fields are missing.");
+            return;
+        }
+    
+        // Get values from input fields
+        const debtName = debtNameInput.value.trim();
+        const debtAmount = parseFloat(debtAmountInput.value) || 0;
+        const minPayment = parseFloat(minPaymentInput.value) || 0;
+        const interestRate = parseFloat(interestRateInput.value) || 0;
+    
+        // Validate input values
+        if (!debtName || debtAmount <= 0 || minPayment <= 0 || interestRate < 0) {
+            alert("Please enter valid debt details.");
+            return;
+        }
+    
+        // Prepare form data
+        const formData = new URLSearchParams();
+        formData.append("debt_id", debtId);
+        formData.append("debt_name", debtName);
+        formData.append("debt_amount", debtAmount);
+        formData.append("min_payment", minPayment);
+        formData.append("interest_rate", interestRate);
+    
+        // Send AJAX request to update-debt.php
+        fetch("update-debt.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString(),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Update Response:", data);
+            if (data.success) {
+                alert("Debt updated successfully!");
+                location.href = "account.php"; // Redirect to main debts page
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    };
+    
+    
     
     function updateDebtsSection() {
         if (!debtsContainer) {
@@ -200,5 +254,9 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error:", error));
     }
     
-    fetchDebtsAndUpdateSection();
+    if (window.location.pathname.includes("account.php")) {
+        fetchDebtsAndUpdateSection(); // make sure this runs on account page only, caused issues on edit-debt page
+    } else {
+        console.log("Skipping fetchDebtsAndUpdateSection() on edit-debt.php");
+    }
 });

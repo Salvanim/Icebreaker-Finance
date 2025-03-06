@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
 ?>
 <nav id="nav">
     <ul>
@@ -46,6 +47,10 @@ if (session_status() === PHP_SESSION_NONE) {
             <input type="password" id="loginPassword" name="password" required>
 
             <button type="submit">Login</button>
+            <input readonly hidden type="text" name="location" value="<?php echo $_SERVER['REQUEST_URI'];?>">
+            <?php 
+                echo $_SESSION['feedback'];
+            ?>
         </form>
         <p>Don't have an account? <a href="register.php">Register here</a></p>
     </div>
@@ -66,14 +71,32 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <label for="newPassword">New Password:</label>
             <input type="password" id="newPassword" name="newPassword">
-
+            
             <button type="submit">Update</button>
         </form>
     </div>
 </div>
 <?php endif; ?>
 
+<?php
+    if (isset($_SESSION['loggedIN']) && $_SESSION['loggedIN'] === false){
+        echo '<script type="text/javascript">
+        const modal = document.getElementById("loginModal");
+        if (modal) {
+            modal.style.display = "block";
+            setTimeout(() => {
+                modal.classList.add("show");
+            }, 10);
+        } else {
+            console.error("Login modal not found in the DOM.");
+        }
+        </script>';
+        $_SESSION['loggedIN'] = true;
+    }
+?>
+
 <script>
+
     function toggleDropdown(event) {
         event.preventDefault();
         const dropdownMenu = document.getElementById("dropdown-menu");
@@ -104,30 +127,33 @@ if (session_status() === PHP_SESSION_NONE) {
             setTimeout(() => {
                 modal.style.display = "none";
             }, 300);
+
+            fetch("reset_session.php", { method: "POST" })
+                .then(response => response.text())
+                .then(data => console.log("Session reset:", data))
+                .catch(error => console.error("Error resetting session:", error));
         }
     }
 
     function openAccountModal() {
-    const modal = document.getElementById("accountModal");
-    if (modal) {
-        console.log("Opening Account Modal...");
-        modal.style.display = "block";
-        modal.style.opacity = "1";
-        modal.style.visibility = "visible";
-        modal.style.zIndex = "10000";
+        const modal = document.getElementById("accountModal");
+        if (modal) {
+            console.log("Opening Account Modal...");
+            modal.style.display = "block";
+            modal.style.opacity = "1";
+            modal.style.visibility = "visible";
+            modal.style.zIndex = "10000";
 
-        const modalContent = document.querySelector("#accountModal .modal-content");
-        if (modalContent) {
-            modalContent.style.opacity = "1";
-            modalContent.style.visibility = "visible";
-            modalContent.style.transform = "translate(-50%, -50%)";
+            const modalContent = document.querySelector("#accountModal .modal-content");
+            if (modalContent) {
+                modalContent.style.opacity = "1";
+                modalContent.style.visibility = "visible";
+                modalContent.style.transform = "translate(-50%, -50%)";
+            }
+        } else {
+            console.error("Account modal not found in the DOM.");
         }
-    } else {
-        console.error("Account modal not found in the DOM.");
     }
-}
-
-
 
     function closeAccountModal() {
         const modal = document.getElementById("accountModal");

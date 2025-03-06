@@ -36,7 +36,7 @@ function getDebtPayments($debtId) {
 
     try {
         $stmt = $db->prepare("
-            SELECT payment_id, payment_date, payment_amount 
+            SELECT payment_id, payment_date, payment_amount
             FROM debt_payments
             WHERE debt_id = ?
             ORDER BY payment_date DESC
@@ -50,6 +50,41 @@ function getDebtPayments($debtId) {
 
 $debt = getDebtDetails($debtId, $userId);
 $payments = getDebtPayments($debtId);
+
+// Generate plot image if payments exist
+$imageSrc = '';
+if (!empty($payments)) {
+    // Generate plot data
+    $chronologicalPayments = array_reverse($payments);
+    $plotDataString = "";
+    foreach ($chronologicalPayments as $payment) {
+        $plotDataString = $payment['payment_date']. "," . $payment['payment_amount'] . "\n";
+    }
+    $input = $plotDataString;
+
+    $graphArguments = [
+        "xColumnName" => "Date",
+        "yColumnName" => "Amount",
+        "title" => "Payment History",
+        "xlabel" => "Date",
+        "ylabel" => "Amount ($)",
+        "color" => "blue",
+        "linewidth" => 2,
+        "marker" => "o"
+    ];
+
+    $argumentsJson = json_encode($graphArguments);
+    // Execute Python script
+    $command = 'python PythonTesting/dataVisualizationGenerator.py ' . '"' . escapeshellarg($input) .' 2>&1';
+    $output = shell_exec($command);
+
+    // Validate base64 output
+    if ($output && base64_decode(trim($output), true)) {
+        $imageSrc = 'data:image/png;base64,' . trim($output);
+    } else {
+        error_log("Failed to generate plot. Output: " . $output);
+    }
+}
 
 if (!$debt) {
     echo "<p class='error'>Debt not found.</p>";
@@ -80,10 +115,18 @@ if (!$debt) {
             <p><strong>Interest Rate:</strong> <?= number_format($debt['interest_rate'], 2) ?>%</p>
         </div>
 
-        <!-- Edit Debt Form -->
-        <h3>Edit Debt Details</h3>
-        <form id="edit-debt-form" onsubmit="event.preventDefault(); updateDebt(<?= $debt['debt_id']; ?>);" class="row g-3">
-        <input type="hidden" id="debt-id" value="<?= $debtId; ?>">
+    <!-- Payment History Visualization -->
+    <?php if ($imageSrc): ?>
+        <h3>Payment History</h3>
+        <img src="<?= $imageSrc ?>" alt="Payment History Plot">
+    <?php elseif (!empty($payments)): ?>
+        <p class="error">Failed to generate payment history visualization.</p>
+    <?php endif; ?>
+
+    <!-- Edit Debt Form -->
+    <h3>Edit Debt Details</h3>
+    <form id="edit-debt-form" action="update-debt.php" method="POST">
+        <input type="hidden" name="debt_id" value="<?= $debtId; ?>">
 
         <div class="col-md-6">
             <label for="debt-name" class="form-label">Debt Name:</label>
@@ -110,44 +153,41 @@ if (!$debt) {
         </div>
     </form>
 
-        <!-- Payment Transactions -->
-        <h3 class="mt-4">Payment Transactions</h3>
-        <table class="table table-striped table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Payment Date</th>
-                    <th>Amount</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="payment-list">
-                <?php if (!empty($payments)): ?>
-                    <?php foreach ($payments as $payment): ?>
-                        <tr id="payment-row-<?= $payment['payment_id'] ?>">
-                            <td><?= date("M d, Y", strtotime($payment['payment_date'])) ?></td>
-                            <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
-                            <td><button class="btn btn-danger btn-sm" onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr><td colspan="3" class="text-muted text-center">No payments recorded yet.</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+    <!-- Payment Transactions -->
+    <h3>Payment Transactions</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Payment Date</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="payment-list">
+            <?php if (!empty($payments)): ?>
+                <?php foreach ($payments as $payment): ?>
+                    <tr id="payment-row-<?= $payment['payment_id'] ?>">
+                        <td><?= date("M d, Y", strtotime($payment['payment_date'])) ?></td>
+                        <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
+                        <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan="3" class="text-muted">No payments recorded yet.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
 
-        <!-- Add Payment Form -->
-        <h3>Add a Payment</h3>
-        <form id="add-payment-form" class="row g-3">
-            <div class="col-md-6">
-                <input type="number" id="payment-amount" class="form-control" placeholder="Payment Amount" required>
-            </div>
-            <div class="col-md-6">
-                <input type="date" id="payment-date" class="form-control" required>
-            </div>
-            <div class="col-12">
-                <button type="button" class="btn btn-primary" onclick="addPayment(<?= $debtId ?>)">Submit</button>
-            </div>
-        </form>
+    <!-- Add Payment Form -->
+    <h3>Add a Payment</h3>
+    <form id="add-payment-form">
+        <input type="number" id="payment-amount" placeholder="Payment Amount" required>
+        <button type="button" onclick="addPayment(<?= $debtId ?>)">Submit</button>
+    </form>
+
+    <!-- Interest Adjustment -->
+    <h3>Apply Interest</h3>
+    <button onclick="applyInterest(<?= $debtId ?>)">Apply Interest</button>
 
 </body>
 </html>

@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['role'] = $user['role']; // Store user role in session
-
+        $_SESSION['loggedIN'] = true;
         // Redirect based on role
         if ($user['role'] === 'admin') {
             
@@ -27,7 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         exit;
     } else {
-        echo "Invalid username or password.";
+        $_SESSION['loggedIN'] = false;
+        $_SESSION['feedback'] = "Invalid Login";
+        header("Location: " . $_POST['location']);
     }
 }
 ?>

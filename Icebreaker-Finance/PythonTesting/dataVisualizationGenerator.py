@@ -34,8 +34,14 @@ class DefinePlot:
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
 
+        # Annotate each point with its value
+        for i, row in self.dataframe.iterrows():
+            ax.text(row[xColumnName], row[yColumnName], f"{row[yColumnName]:.2f}",
+                    ha='left', va='bottom', fontsize=10, color='black')
+
         # Set the x-ticks to only the provided dates
         ax.set_xticks(self.dataframe[xColumnName])
+        plt.xticks(rotation=20)
 
         # Set the x-axis label format for the dates
         ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
@@ -57,19 +63,20 @@ if __name__ == "__main__":
         finalData = []
         for row in individualRows:
             finalData.append(row.split(","))
+
         # Rest of plotting logic
         plotter = DefinePlot(finalData, ["Date", "Amount"])
         plotter.line("Date", "Amount")
         plot_method = getattr(plotter, "line")
         plotArguments = {
-            "xColumnName" : "Date",
-            "yColumnName" : "Amount",
-            "title" : "Payment History",
-            "xlabel" : "Date",
-            "ylabel" : "Amount ($)",
-            "color" : "blue",
-            "linewidth" : 2,
-            "marker" : "o"
+            "xColumnName": "Date",
+            "yColumnName": "Amount",
+            "title": "Payment History",
+            "xlabel": "Date",
+            "ylabel": "Amount ($)",
+            "color": "blue",
+            "linewidth": 2,
+            "marker": "o"
         }
         plot_method(**plotArguments)
         print(plotter.getImageBase64())

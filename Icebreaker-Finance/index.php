@@ -20,30 +20,41 @@ require __DIR__ . '/model/db.php';
     </section>
 
     <!-- Debt Snowball Method -->
-<section class="debt-method">
+    <div class="container text-center">
     <h2 class="section-title">Debt Snowball Method</h2>
-    <div class="divider"></div>
-    <div class="video-container">
-        <iframe 
-            src="https://www.youtube.com/embed/Q5jlY8_WmEE?si=Rkmu7_eIzgTBIxkn"
-            title="Debt Snowball"
-            allowfullscreen>
-        </iframe>
+    <div class="divider mx-auto"></div>
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="ratio ratio-16x9">
+                <iframe 
+                    src="https://www.youtube.com/embed/Q5jlY8_WmEE?si=Rkmu7_eIzgTBIxkn"
+                    title="Debt Snowball"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
     </div>
-</section>
+</div>
+
+
 
 <!-- Debt Avalanche Method -->
-<section class="debt-method">
+<div class="container text-center">
     <h2 class="section-title">Debt Avalanche Method</h2>
-    <div class="divider"></div>
-    <div class="video-container">
-        <iframe 
-            src="https://www.youtube.com/embed/S19s7RwpKSM?si=UupX9dSsHdSNrE5G"
-            title="Debt Avalanche"
-            allowfullscreen>
-        </iframe>
+    <div class="divider mx-auto"></div>
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="ratio ratio-16x9">
+                <iframe 
+                    src="https://www.youtube.com/embed/S19s7RwpKSM?si=UupX9dSsHdSNrE5G"
+                    title="Debt Avalanche"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
     </div>
-</section>
+</div>
+
 
 
         <!-- Debt Tracker -->
@@ -63,18 +74,30 @@ require __DIR__ . '/model/db.php';
 
         <!-- hidden form -->
         <div id="debt-form-container" class="hidden">
-            <form id="debt-form">
-                <input type="text" id="debt-name" placeholder="Debt Name" required />
-                <select id="method">
-                    <option value="" disabled selected>Select Debt Method</option>
-                    <option value="snowball">Snowball Method</option>
-                    <option value="avalanche">Avalanche Method</option>
-                </select>
-                <input type="number" id="debt-amount" placeholder="Debt Amount" required />
-                <input type="number" id="min-payment" placeholder="Minimum Payment" required />
-                <input type="number" step="0.01" id="interest-rate" placeholder="Interest Rate (%)" required />
-                <button type="button" class="go-button" onclick="addDebt()">GO</button>
-            </form>
+        <form id="debt-form" class="row g-2 align-items-center">
+        <div class="col-12 col-md-auto">
+            <input type="text" id="debt-name" class="form-control" placeholder="Debt Name" required />
+        </div>
+        <div class="col-12 col-md-auto">
+            <select id="method" class="form-select" required>
+                <option value="" disabled selected>Select Method</option>
+                <option value="snowball">Snowball</option>
+                <option value="avalanche">Avalanche</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-auto">
+            <input type="number" id="debt-amount" class="form-control" placeholder="Debt Amount" required />
+        </div>
+        <div class="col-12 col-md-auto">
+            <input type="number" id="min-payment" class="form-control" placeholder="Min Payment" required />
+        </div>
+        <div class="col-12 col-md-auto">
+            <input type="number" step="0.01" id="interest-rate" class="form-control" placeholder="Interest (%)" required />
+        </div>
+        <div class="col-12 col-md-auto">
+            <button type="button" class="btn btn-success" onclick="addDebt()">GO</button>
+        </div>
+    </form>
         </div>
 
         <!-- Debt Table -->

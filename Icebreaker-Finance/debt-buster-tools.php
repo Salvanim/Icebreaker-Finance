@@ -37,7 +37,7 @@ $resources = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <!--edit button-->
                         <?php if (isset($_SESSION['role'])&& $_SESSION['role'] === 'admin'): ?>
-                            <button class="edit-btn" onclick="editResource(<?= $resource['id']; ?>, `<?= htmlspecialchars($resource['content'], ENT_QUOTES); ?>`)">Edit
+                            <button type="submit" class="btn btn-primary" onclick="editResource(<?= $resource['id']; ?>, `<?= htmlspecialchars($resource['content'], ENT_QUOTES); ?>`)">Edit
 
                             </button>
 
@@ -57,7 +57,7 @@ $resources = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h2>Admin Tools Editor</h2>
             <form id="admin-editor-form" action="save_editor_content.php" method="post">
                 <textarea id="admin-editor" name="editor_content"></textarea>
-                <button type="submit" class="submit-btn">Save Content</button>
+                <button type="submit" class="btn btn-primary" class="submit-btn">Save Content</button>
             </form>
         </section>
 

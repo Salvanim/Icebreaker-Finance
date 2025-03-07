@@ -194,7 +194,7 @@
 
 /* MODAL BUTTON STYLING */
 .modal button {
-    background: linear-gradient(0deg, #084096 0%, #031E47 100%);
+    
     color: white;
     font-size: 16px;
     padding: 12px;
@@ -206,6 +206,8 @@
 
 .modal button:hover {
     background: #031E47;
+    color:white;
+
 }
 
 /* RESPONSIVE MODAL */
@@ -317,17 +319,56 @@ body {
     background-color: #062c6b;
 }
 
+/*making sure .hidden is globally defined*/
+.hidden {
+    display: none !important;
+}
+
+/*centering and alignment of calculator*/
+#debt-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+#debt-form input,
+#debt-form select,
+#debt-form button {
+    flex: 1 1 auto;
+    min-width: 150px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#debt-form button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+#debt-form button:hover {
+    background-color: #0056b3;
+}
+
+
 /* Form Container - hidden */
 #debt-form-container {
-    display: none;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
 }
 
-#debt-form-container.hidden {
-    display: none;
-}
 
-#debt-form-container:not(.hidden) {
-    display: block;
+#debt-form-container.show {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 
@@ -441,6 +482,19 @@ body {
     border-radius: 5px;
 }
 
+/*align modify accounts button for admin under icebreaker finance*/
+.modify-accounts-container {
+    display: flex;
+    justify-content: left;  /* Center horizontally */
+    margin-top: 20px;  /* Adjust spacing */
+    margin-left: 30px;
+
+}
+
+.modify-accounts {
+    text-align: center;
+    font-size: 14px;
+}
 
 
 /* FOOTER */
@@ -453,6 +507,28 @@ body {
     font-weight: 400;
     padding: 15px 0;
 }
+
+/*OVERRIDE BOOTSTRAP WITH OUR SELECTED COLORS */
+.card-header.bg-primary {
+    background: linear-gradient(0deg, #084096 50%, #074EBD 50%);     
+}
+
+.btn-primary {
+    background-color: #084096 !important;
+    border-color: #084096 !important;
+    color: white !important;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-transform: uppercase;
+    border-radius: 5px;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #062C6B !important;
+    border-color: #062C6B !important;
+}
+
 
 
 /* MEDIA QUERIES */
@@ -472,7 +548,12 @@ body {
     .modal-content {
         width: 85%;
     }
+
+    #debt-form .col-auto {
+        width: 100%; /* stack debt form vertically on small screens */
+    }
 }
+
 
 @media screen and (min-width: 1024px) {
     .header {

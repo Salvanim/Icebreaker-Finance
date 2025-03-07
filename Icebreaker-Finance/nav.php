@@ -46,10 +46,11 @@ if (session_status() === PHP_SESSION_NONE) {
             <label for="loginPassword">Password:</label>
             <input type="password" id="loginPassword" name="password" required>
 
-            <button type="submit">Login</button>
+            <button type="submit" class="btn btn-primary">Login</button>
             <input readonly hidden type="text" name="location" value="<?php echo $_SERVER['REQUEST_URI'];?>">
             <?php 
-                echo $_SESSION['feedback'];
+                echo $_SESSION['feedback'] ?? '';
+
             ?>
         </form>
         <p>Don't have an account? <a href="register.php">Register here</a></p>

@@ -47,6 +47,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["payment_id"])) {
         } else {
             $_SESSION['message'] = "Payment could not be deleted.";
         }
+
+        $paymentAmount = $payment['payment_amount'];
+        $debtId = $payment['debt_id'];
+
+        // Delete the payment record
+        $stmt = $db->prepare("DELETE FROM debt_payments WHERE payment_id = ?");
+        $stmt->execute([$paymentId]);
+
+        if ($stmt->rowCount() <= 0) {
+            $db->rollBack();
+            echo json_encode(["success" => false, "message" => "Failed to delete payment"]);
+            exit;
+        }
+
+        // Add the payment amount back to the corresponding debt's balance.
+        $stmt = $db->prepare("UPDATE debt_lookup SET balance = balance + ? WHERE debt_id = ?");
+        $stmt->execute([$paymentAmount, $debtId]);
+
+        // Commit transaction
+        $db->commit();
+        echo json_encode(["success" => true]);
     } catch (PDOException $e) {
         $_SESSION['message'] = "Error deleting payment.";
     }

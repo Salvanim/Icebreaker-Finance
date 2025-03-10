@@ -22,9 +22,13 @@ $resources = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 <?php include 'nav.php'; ?>
-<section class="banner">
-    <h2 class="banner-text">Snowball Your Success, Avalanche Your Debt - Financial Tools for You</h2>
-</section>
+
+<section class="banner bg-primary text-white text-center py-3 mt-5">
+    <div class="container">
+    <h1 class="display-4">Financial Tools for You</h1> 
+        <p class="lead">Snowball Your Success, Avalanche Your Debt </p>
+    </div>
+    </section>
 
 <main class="debt-buster-container">
     <section class="tool-section">
@@ -33,8 +37,9 @@ $resources = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (!empty($resources)): ?>
                     <?php foreach ($resources as $resource): ?>
                         <div class="resource-box">
+                            
                             <?= htmlspecialchars_decode($resource['content']); ?>
-
+                            
                         <!--edit button-->
                         <?php if (isset($_SESSION['role'])&& $_SESSION['role'] === 'admin'): ?>
                             <button type="submit" class="btn btn-primary" onclick="editResource(<?= $resource['id']; ?>, `<?= htmlspecialchars($resource['content'], ENT_QUOTES); ?>`)">Edit

@@ -62,7 +62,7 @@ function getUserData() {
                  </label>";
             }
 
-            $deleteUserButton = "<button type='button' class='btn btn-danger btn-sm delete-user' data-id='{$userID}'>Delete User</button>";
+            $deleteUserButton = "<button class='delete-user' data-id='{$userID}'>Delete</button>";
 
             $finalOutput .= addToTable($username, $role, $toggleAdminButton, $deleteUserButton);
         }
@@ -105,7 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Account Mgmt</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -114,29 +113,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 <?php include 'nav.php'; ?>
 <?php include 'pythonInteraction.php'; ?>
 
-<div class="mt-4">
-<h2 class="mb-4">Admin User Management</h2>
+<h2>Admin User Management</h2>
 
-<div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="usersTable" class="table table-striped table-hover">
-                    <thead class="table-primary">
-                        <tr>
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th>Toggle Admin</th>
-                            <th>Delete User</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php echo getUserData(); ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>    
+<table id="usersTable">
+    <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Toggle Admin</th>
+        <th>Delete User</th>
+    </tr>
+    <?php echo getUserData(); ?>
+</table>
 
 
 
@@ -145,7 +132,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <p>© 2025 Icebreaker Finance. All rights reserved.</p>
 </footer>
 
-<!--script for admin toggle and delete user-->
 <script>
 $(document).ready(function() {
     $(".toggle-admin").click(function() {

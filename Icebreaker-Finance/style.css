@@ -198,7 +198,7 @@
 
 /* MODAL BUTTON STYLING */
 .modal button {
-    
+
     color: white;
     font-size: 16px;
     padding: 12px;
@@ -540,7 +540,7 @@ body {
 
 /*OVERRIDE BOOTSTRAP WITH OUR SELECTED COLORS */
 .card-header.bg-primary {
-    background: linear-gradient(0deg, #084096 50%, #074EBD 50%);     
+    background: linear-gradient(0deg, #084096 50%, #074EBD 50%);
 }
 
 .btn-primary {
@@ -662,4 +662,3 @@ body {
 .toggle-switch input:checked+.slider::before {
     transform: translateX(26px);
 }
-

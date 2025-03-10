@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['loggedIN'] = true;
         // Redirect based on role
         if ($user['role'] === 'admin') {
-            
+
             header("Location: admin-account-mgmt.php");
         } else {
             header("Location: account.php");

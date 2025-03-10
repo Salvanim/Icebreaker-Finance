@@ -28,44 +28,26 @@ class DefinePlot:
             return "No plot has been created yet."
 
     def line(self, xColumnName, yColumnName, title='', xlabel='', ylabel='', color='blue', linewidth=2, marker='o'):
-        self.fig, ax = plt.subplots(figsize=(12, 7))  # Slightly larger figure for better spacing
-        ax.plot(self.dataframe[xColumnName], self.dataframe[yColumnName],
-                color=color, linewidth=linewidth, marker=marker, zorder=5)
+        self.fig, ax = plt.subplots(figsize=(10, 6))  # Increase figure size for better label visibility
+        ax.plot(self.dataframe[xColumnName], self.dataframe[yColumnName], color=color, linewidth=linewidth, marker=marker)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
-        ax.set_title(title, pad=20)
-        ax.set_xlabel(xlabel, labelpad=15)
-        ax.set_ylabel(ylabel, labelpad=15)
-
-        # Calculate dynamic vertical offset (3% of data range)
-        y_min = self.dataframe[yColumnName].min()
-        y_max = self.dataframe[yColumnName].max()
-        y_range = y_max - y_min
-        y_offset = y_range * 0.03 if y_range > 0 else 1
-
-        # Annotate points with intelligent positioning
+        # Annotate each point with its value
         for i, row in self.dataframe.iterrows():
-            # Position label above the point with horizontal centering
-            ax.text(row[xColumnName],
-                    row[yColumnName] + y_offset,
-                    f"${row[yColumnName]:.2f}",
-                    ha='center',
-                    va='bottom',
-                    fontsize=9,
-                    color='black',
-                    bbox=dict(facecolor='white', alpha=0.8, edgecolor='none', pad=1),
-                    zorder=10)
+            ax.text(row[xColumnName], row[yColumnName], f"{row[yColumnName]:.2f}",
+                    ha='left', va='bottom', fontsize=10, color='black')
 
-        # Configure x-axis
+        # Set the x-ticks to only the provided dates
         ax.set_xticks(self.dataframe[xColumnName])
-        plt.xticks(rotation=35, ha='right')  # Rotate dates diagonally
+        plt.xticks(rotation=20)
+
+        # Set the x-axis label format for the dates
         ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
 
-        # Add gridlines for better readability
-        ax.grid(True, linestyle='--', alpha=0.7, zorder=0)
-
-        # Ensure proper spacing
+        # Adjust layout to prevent overlap
         plt.tight_layout()
-        plt.subplots_adjust(top=0.9)  # Add extra space at the top
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

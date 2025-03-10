@@ -31,7 +31,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($stmt->execute()) {
                 echo json_encode(["success" => true, "message" => "Debt updated successfully"]);
-                header("Location: edit-debt.php?debt_id=" . urlencode($id));
             } else {
                 echo json_encode(["success" => false, "message" => "Database update failed"]);
             }

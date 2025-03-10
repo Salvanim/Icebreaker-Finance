@@ -67,21 +67,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // Hide/show the debt calculator form
     window.toggleDebtForm = function () {
         console.log("Toggle button clicked!");
-
+    
         const debtFormContainer = document.getElementById("debt-form-container");
-
+    
         if (!debtFormContainer) {
             console.error("Error: `debt-form-container` not found.");
             return;
         }
-
+    
         console.log("Toggling form visibility...");
         debtFormContainer.classList.toggle("hidden");
-
+    
         console.log("Form class list:", debtFormContainer.classList);
     };
-
-
+    
+    
 
     // Add a new debt
     window.addDebt = function () {
@@ -168,31 +168,31 @@ document.addEventListener("DOMContentLoaded", function () {
     //function to update the debt table after changes have been made
     function updateDebtTable() {
         console.log("✅ updateDebtTable() function triggered!");
-
+        
         const debtsContainer = document.getElementById("debt-list");
         if (!debtsContainer) {
             console.error("❌ Error: debtsContainer element not found.");
             return;
         }
-
+    
         console.log("Current debts array:", debts); // Debugging the debts array
-
+    
         debtsContainer.innerHTML = ""; // Clear previous rows
-
+    
         if (debts.length === 0) {
             console.log("✅ No debts found. Showing empty table message.");
             debtsContainer.innerHTML = "<tr><td colspan='6' class='text-muted'>No debts added yet.</td></tr>";
             totalDebtSpan.textContent = "$0.00";
             return;
         }
-
+    
         debts.forEach(debt => {
             console.log("Processing debt:", debt); // Debugging each debt object
-
+    
             const amountOwed = parseFloat(debt.amount_owed) || 0;
             const minPayment = parseFloat(debt.min_payment) || 0;
             const interestRate = parseFloat(debt.interest_rate) || 0;
-
+    
             const row = document.createElement("tr");
             row.id = `debt-row-${debt.debt_id}`;
             row.innerHTML = `
@@ -205,19 +205,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     <button class="btn btn-danger btn-sm delete-btn" onclick="deleteDebt(${debt.debt_id})">Delete</button>
                 </td>
             `;
-
+    
             debtsContainer.appendChild(row);
         });
-
+    
         console.log(" Debt table updated successfully!");
     }
-
+    
 
 
         // Update total debt
         const totalDebt = debts.reduce((sum, debt) => sum + (Number(debt.amount_owed) || 0), 0);
         document.getElementById("total-debt").textContent = `$${totalDebt.toFixed(2)}`;
-
+    
 
 
 

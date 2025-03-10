@@ -91,56 +91,19 @@ if (!empty($payments)) {
 $imageSrc = '';
 if (!empty($payments)) {
     $chronologicalPayments = array_reverse($payments);
-
-    // Prepare data for the plot with interest calculations
     $plotDataString = "";
-    $balance = $debt['amount_owed'];
-    $monthlyInterestRate = $debt['interest_rate'] / 12 / 100;
+    $amountOwed = $debt["amount_owed"];
 
-    // Generate all months from the debt's start date to current month
-    $startDate = new DateTime($debt['date_added']);
-    $startDate->modify('first day of this month'); // Start from the beginning of the month
-    $endDate = new DateTime();
-    $endDate->modify('first day of next month'); // Include current month
+    $dateStarted = date_create($debt["date_added"])->format('Y-m-d');
+    $today = date_create("today")->format('Y-m-d');
+    $datesBetween = getDatesBetween($dateStarted, $today);
+    $interestRate = $debt["interest_rate"]/1200;
 
-    $interval = new DateInterval('P1M');
-    $period = new DatePeriod($startDate, $interval, $endDate);
-
-    // Group payments by their month
-    $paymentsByMonth = [];
     foreach ($chronologicalPayments as $payment) {
-        $paymentMonth = (new DateTime($payment['payment_date']))->format('Y-m');
-        if (!isset($paymentsByMonth[$paymentMonth])) {
-            $paymentsByMonth[$paymentMonth] = 0;
-        }
-        $paymentsByMonth[$paymentMonth] += $payment['payment_amount'];
+        $calculatedChange = $amountOwed - $payment['payment_amount'];
+        $plotDataString .= $payment['payment_date'] . "," . $calculatedChange . "$";
+        $amountOwed = $calculatedChange;
     }
-
-    // Calculate balance for each month
-    $plotData = [];
-    foreach ($period as $date) {
-        $currentMonth = $date->format('Y-m');
-        $monthEnd = $date->format('Y-m-t');
-
-        // Apply interest
-        $interest = $balance * $monthlyInterestRate;
-        $balance += $interest;
-
-        // Apply payments for the current month
-        if (isset($paymentsByMonth[$currentMonth])) {
-            $balance -= $paymentsByMonth[$currentMonth];
-            if ($balance < 0) $balance = 0;
-        }
-
-        // Record the balance at the end of the month
-        $plotData[$monthEnd] = $balance;
-    }
-
-    // Build the plot data string
-    foreach ($plotData as $date => $amount) {
-        $plotDataString .= $date . "," . number_format($amount, 2, '.', '') . "$";
-    }
-
     $input = $plotDataString;
 
     $graphArguments = [
@@ -220,7 +183,7 @@ if (!$debt) {
             </div>
 
             <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" onclick="updateDebt(<?= $debtId ?>)" class="btn btn-primary">Save Changes</button>
             </div>
         </form>
 
@@ -238,7 +201,9 @@ if (!$debt) {
             </thead>
             <tbody id="payment-list">
                 <?php if (!empty($payments)): ?>
-                    <?php foreach ($payments as $payment):
+                    <?php
+                    // Display in descending order (latest first)
+                    foreach ($payments as $payment):
                         $break = isset($breakdown[$payment['payment_id']]) ? $breakdown[$payment['payment_id']] : ['principal' => 0, 'interest' => 0];
                     ?>
                         <tr id="payment-row-<?= $payment['payment_id'] ?>">
@@ -246,12 +211,7 @@ if (!$debt) {
                             <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
                             <td>$<?= number_format($break['principal'], 2) ?></td>
                             <td>$<?= number_format($break['interest'], 2) ?></td>
-                            <td>
-                                <form method="POST" action="delete-payment.php">
-                                    <input type="hidden" name="payment_id" value="<?= $payment['payment_id'] ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-                            </td>
+                            <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -274,24 +234,11 @@ if (!$debt) {
             </div>
         </form>
 
-        <!-- Payment History Visualization -->
+        <!-- Payment History Visualization (Plot at the bottom) -->
         <?php if ($imageSrc): ?>
-            <div class="row my-5">  <!-- Increased vertical spacing -->
-                <div class="col-12 col-lg-10 mx-auto px-0">  <!-- Wider container with no horizontal padding -->
-                    <div class="ratio ratio-16x9">  <!-- Responsive aspect ratio container -->
-                        <img src="<?= $imageSrc ?>"
-                             alt="Payment History Plot"
-                             class="img-fluid"
-                             style="object-fit: contain; background-color: #f8f9fa;">  <!-- Maintain aspect ratio -->
-                    </div>
-                </div>
-            </div>
+            <img src="<?= $imageSrc ?>" alt="Payment History Plot">
         <?php elseif (!empty($payments)): ?>
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="error">Failed to generate payment history visualization.</p>
-                </div>
-            </div>
+            <p class="error">Failed to generate payment history visualization.</p>
         <?php endif; ?>
 
     </div>

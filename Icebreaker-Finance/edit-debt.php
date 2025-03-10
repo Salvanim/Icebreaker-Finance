@@ -211,7 +211,7 @@ if (!$debt) {
                             <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
                             <td>$<?= number_format($break['principal'], 2) ?></td>
                             <td>$<?= number_format($break['interest'], 2) ?></td>
-                            <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
+                            <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)" class="btn btn-danger btn-small delete-btn">Delete</button></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

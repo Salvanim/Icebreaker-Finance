@@ -2,180 +2,120 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
 ?>
-<nav id="nav">
-    <ul>
-        <li class="logo"><a href="index.php">Icebreaker Finance</a></li>
-        <div class="nav-right">
-
-            <!-- Resources Dropdown -->
-            <li class="dropdown">
-                <a href="#" class="dropbtn" onclick="toggleDropdown(event)">Resources ▼</a>
-                <ul class="dropdown-content" id="dropdown-menu">
-                    <li><a href="debt-buster-tools.php">Debt Buster Tools</a></li>
-                </ul>
-            </li>
-
-            <!-- Account / My Account Button -->
-            <?php if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] === true) : ?>
-                <?php if (basename($_SERVER['PHP_SELF']) === "account.php") : ?>
-                    <li><a href="#" onclick="openAccountModal()">Account</a></li>
-                <?php else: ?>
-                    <li><a href="account.php">My Account</a></li>
-                <?php endif; ?>
-                <li><a href="logout.php">Logout</a></li>
-            <?php else : ?>
-                <li><a href="#" onclick="openLoginModal()">Login/Register</a></li>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Icebreaker Finance</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.php">Icebreaker Finance</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" 
+              aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+          <!-- Resources Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Resources
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+              <li><a class="dropdown-item" href="debt-buster-tools.php">Debt Buster Tools</a></li>
+            </ul>
+          </li>
+          <!-- Account / My Account Buttons -->
+          <?php if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] === true) : ?>
+            <?php if (basename($_SERVER['PHP_SELF']) === "account.php") : ?>
+              <li class="nav-item">
+                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#accountModal">Account</a>
+              </li>
+            <?php else: ?>
+              <li class="nav-item">
+                <a class="nav-link" href="account.php">My Account</a>
+              </li>
             <?php endif; ?>
+            <li class="nav-item">
+              <a class="nav-link" href="logout.php">Logout</a>
+            </li>
+          <?php else : ?>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login/Register</a>
+            </li>
+          <?php endif; ?>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
+  <!-- Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalLabel">Login</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-    </ul>
-</nav>
-
-
-<!-- Login Modal -->
-<div id="loginModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeLoginModal()">&times;</span>
-        <h2>Login</h2>
-        <form action="login.php" method="post">
-            <label for="loginUsername">Username:</label>
-            <input type="text" id="loginUsername" name="username" required>
-
-            <label for="loginPassword">Password:</label>
-            <input type="password" id="loginPassword" name="password" required>
-
+        <div class="modal-body">
+          <form action="login.php" method="post">
+            <div class="mb-3">
+              <label for="loginUsername" class="form-label">Username:</label>
+              <input type="text" class="form-control" id="loginUsername" name="username" required>
+            </div>
+            <div class="mb-3">
+              <label for="loginPassword" class="form-label">Password:</label>
+              <input type="password" class="form-control" id="loginPassword" name="password" required>
+            </div>
+            <input type="hidden" name="location" value="<?php echo $_SERVER['REQUEST_URI'];?>">
+            <?php echo $_SESSION['feedback'] ?? ''; ?>
             <button type="submit" class="btn btn-primary">Login</button>
-            <input readonly hidden type="text" name="location" value="<?php echo $_SERVER['REQUEST_URI'];?>">
-            <?php 
-                echo $_SESSION['feedback'] ?? '';
-
-            ?>
-        </form>
-        <p>Don't have an account? <a href="register.php">Register here</a></p>
+          </form>
+          <p class="mt-2">Don't have an account? <a href="register.php">Register here</a></p>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Account Modal (appears on account page only) -->
-<?php if (basename($_SERVER['PHP_SELF']) === "account.php") : ?>
-<div id="accountModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeAccountModal()">&times;</span>
-        <h2>Update Account Information</h2>
-        <form action="update_account.php" method="post">
-            <label for="newUsername">New Username:</label>
-            <input type="text" id="newUsername" name="newUsername">
-
-            <label for="newEmail">New Email:</label>
-            <input type="email" id="newEmail" name="newEmail">
-
-            <label for="newPassword">New Password:</label>
-            <input type="password" id="newPassword" name="newPassword">
-            
-            <button type="submit">Update</button>
-        </form>
+  <!-- Account Modal (only on account page) -->
+  <?php if (basename($_SERVER['PHP_SELF']) === "account.php") : ?>
+  <div class="modal fade" id="accountModal" tabindex="-1" aria-labelledby="accountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="accountModalLabel">Update Account Information</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="update_account.php" method="post">
+            <div class="mb-3">
+              <label for="newUsername" class="form-label">New Username:</label>
+              <input type="text" class="form-control" id="newUsername" name="newUsername">
+            </div>
+            <div class="mb-3">
+              <label for="newEmail" class="form-label">New Email:</label>
+              <input type="email" class="form-control" id="newEmail" name="newEmail">
+            </div>
+            <div class="mb-3">
+              <label for="newPassword" class="form-label">New Password:</label>
+              <input type="password" class="form-control" id="newPassword" name="newPassword">
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+          </form>
+        </div>
+      </div>
     </div>
-</div>
-<?php endif; ?>
+  </div>
+  <?php endif; ?>
 
-<?php
-    if (isset($_SESSION['loggedIN']) && $_SESSION['loggedIN'] === false){
-        echo '<script type="text/javascript">
-        const modal = document.getElementById("loginModal");
-        if (modal) {
-            modal.style.display = "block";
-            setTimeout(() => {
-                modal.classList.add("show");
-            }, 10);
-        } else {
-            console.error("Login modal not found in the DOM.");
-        }
-        </script>';
-        $_SESSION['loggedIN'] = true;
-    }
-?>
-
-<script>
-
-    function toggleDropdown(event) {
-        event.preventDefault();
-        const dropdownMenu = document.getElementById("dropdown-menu");
-        dropdownMenu.classList.toggle("show");
-        document.addEventListener("click", (e) => {
-            if (!dropdownMenu.contains(e.target) && e.target !== event.target) {
-                dropdownMenu.classList.remove("show");
-            }
-        }, { once: true });
-    }
-
-    function openLoginModal() {
-        const modal = document.getElementById("loginModal");
-        if (modal) {
-            modal.style.display = "block";
-            setTimeout(() => {
-                modal.classList.add("show");
-            }, 10);
-        } else {
-            console.error("Login modal not found in the DOM.");
-        }
-    }
-
-    function closeLoginModal() {
-        const modal = document.getElementById("loginModal");
-        if (modal) {
-            modal.classList.remove("show");
-            setTimeout(() => {
-                modal.style.display = "none";
-            }, 300);
-
-            fetch("reset_session.php", { method: "POST" })
-                .then(response => response.text())
-                .then(data => console.log("Session reset:", data))
-                .catch(error => console.error("Error resetting session:", error));
-        }
-    }
-
-    function openAccountModal() {
-        const modal = document.getElementById("accountModal");
-        if (modal) {
-            console.log("Opening Account Modal...");
-            modal.style.display = "block";
-            modal.style.opacity = "1";
-            modal.style.visibility = "visible";
-            modal.style.zIndex = "10000";
-
-            const modalContent = document.querySelector("#accountModal .modal-content");
-            if (modalContent) {
-                modalContent.style.opacity = "1";
-                modalContent.style.visibility = "visible";
-                modalContent.style.transform = "translate(-50%, -50%)";
-            }
-        } else {
-            console.error("Account modal not found in the DOM.");
-        }
-    }
-
-    function closeAccountModal() {
-        const modal = document.getElementById("accountModal");
-        if (modal) {
-            modal.classList.remove("show");
-            setTimeout(() => {
-                modal.style.display = "none";
-            }, 300);
-        }
-    }
-
-    // closes modals when clicking outside of them
-    window.onclick = function(event) {
-        const loginModal = document.getElementById("loginModal");
-        const accountModal = document.getElementById("accountModal");
-        if (event.target === loginModal) {
-            closeLoginModal();
-        }
-        if (event.target === accountModal) {
-            closeAccountModal();
-        }
-    };
-</script>
-
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

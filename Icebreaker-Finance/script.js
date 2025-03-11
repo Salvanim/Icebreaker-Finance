@@ -1,89 +1,40 @@
-document.addEventListener("DOMContentLoaded", function () {
-    let debts = [];
 
+
+document.addEventListener("DOMContentLoaded", function () {
     const debtForm = document.getElementById("debt-form");
     const debtList = document.getElementById("debt-list");
     const totalDebtSpan = document.getElementById("total-debt") || { textContent: "" };
-    if (!totalDebtSpan) {
+    if (totalDebtSpan) {
+        totalDebtSpan.textContent = "$0.00";
+    } else {
         console.error("Error: `total-debt` element not found in the DOM.");
     }
-
-    // Just to confirm we have the form container
     const debtFormContainer = document.getElementById("debt-form-container");
+    const debtsContainer = document.querySelector(".debts") || document.getElementById("debt-list");
 
-    // This function updates only the table (debt-list) and the total debt span
-    function updateDebtTable() {
-        console.log("updateDebtTable() function triggered");
-        const debtsContainer = document.getElementById("debt-list");
-        if (!debtsContainer) {
-            console.error("Error: debtsContainer element not found.");
-            return;
-        }
+    console.log(debtFormContainer);
 
-        console.log("Current debts array:", debts);
 
-        // Clear previous rows
-        debtsContainer.innerHTML = "";
-
-        // If no debts, show a placeholder row and set total debt to $0.00
-        if (debts.length === 0) {
-            debtsContainer.innerHTML = "<tr><td colspan='6' class='text-muted'>No debts added yet.</td></tr>";
-            if (totalDebtSpan) {
-                totalDebtSpan.textContent = "$0.00";
-            }
-            return;
-        }
-
-        // Build rows
-        debts.forEach(debt => {
-            const amountOwed = parseFloat(debt.amount_owed) || 0;
-            const minPayment = parseFloat(debt.min_payment) || 0;
-            const interestRate = parseFloat(debt.interest_rate) || 0;
-
-            const row = document.createElement("tr");
-            row.id = `debt-row-${debt.debt_id}`;
-            row.innerHTML = `
-                <td>${debt.debt_name}</td>
-                <td>$${amountOwed.toFixed(2)}</td>
-                <td>$${minPayment.toFixed(2)}</td>
-                <td>${interestRate.toFixed(2)}%</td>
-                <td><!-- Payoff Date (optional) --></td>
-                <td>
-                    <button class="btn btn-danger btn-sm delete-btn" onclick="deleteDebt(${debt.debt_id})">Delete</button>
-                </td>
-            `;
-            debtsContainer.appendChild(row);
-        });
-
-        // Calculate total debt
-        const totalDebt = debts.reduce((sum, d) => sum + (parseFloat(d.amount_owed) || 0), 0);
-        if (totalDebtSpan) {
-            totalDebtSpan.textContent = `$${totalDebt.toFixed(2)}`;
-        }
-
-        console.log("Debt table updated successfully!");
-    }
-
-    // Hide/show the debt calculator form
+    let debts = [];
+    //function to hide/show the debt calculator form
     window.toggleDebtForm = function () {
         console.log("Toggle button clicked!");
-    
+
         const debtFormContainer = document.getElementById("debt-form-container");
-    
+
         if (!debtFormContainer) {
             console.error("Error: `debt-form-container` not found.");
             return;
         }
-    
+
         console.log("Toggling form visibility...");
         debtFormContainer.classList.toggle("hidden");
-    
+
         console.log("Form class list:", debtFormContainer.classList);
     };
-    
-    
 
-    // Add a new debt
+
+
     window.addDebt = function () {
         const debtNameInput = document.getElementById("debt-name");
         const methodInput = document.getElementById("method");
@@ -98,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const debtName = debtNameInput.value.trim();
         const method = methodInput.value;
-        const debtAmount = parseFloat(debtAmountInput.value) || 0;
+        const amountOwed = parseFloat(debt.amount_owed) || 0;
         const minPayment = parseFloat(minPaymentInput.value) || 0;
         const interestRate = parseFloat(interestRateInput.value) || 0;
 
@@ -107,27 +58,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // If user not logged in, or if you have a 'loggedIn' check
-        if (typeof loggedIn !== "undefined" && !loggedIn) {
-            alert("Debt added successfully! (Demo mode – not saved to database)");
-            const demoDebt = {
-                debt_id: Date.now(),
-                debt_name: debtName,
-                debt_type: method,
-                amount_owed: debtAmount,
-                min_payment: minPayment,
-                interest_rate: interestRate
-            };
-            debts.push(demoDebt);
-            updateDebtTable();
-            debtForm.reset();
-            if (debtFormContainer) {
-                debtFormContainer.classList.add("hidden");
-            }
-            return;
-        }
-
-        // For logged in users, send to add-debt.php
         const formData = new URLSearchParams();
         formData.append("debt_name", debtName);
         formData.append("debt_type", method);
@@ -139,7 +69,6 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: formData.toString(),
-            credentials: "include"
         })
         .then(response => response.json())
         .then(data => {
@@ -154,10 +83,46 @@ document.addEventListener("DOMContentLoaded", function () {
                     interest_rate: interestRate
                 });
                 updateDebtTable();
+                updateDebtsSection();
                 debtForm.reset();
-                if (debtFormContainer) {
-                    debtFormContainer.classList.add("hidden");
-                }
+                debtFormContainer.classList.add("hidden");
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    };
+    //function to add payments to individual debts
+    window.addPayment = function (debtId) {
+        const paymentAmountInput = document.getElementById("payment-amount");
+        const paymentDateInput = document.getElementById("payment-date");
+        if (!paymentAmountInput || !paymentDateInput) {
+            console.error("Payment input not found.");
+            return;
+        }
+
+        const paymentAmount = parseFloat(paymentAmountInput.value) || 0;
+        const paymentDate = paymentDateInput.value;
+        if (paymentAmount <= 0 || !paymentDate) {
+            alert("Please enter a valid payment amount and/or date.");
+            return;
+        }
+
+        const formData = new URLSearchParams();
+        formData.append("debt_id", debtId);
+        formData.append("payment_amount", paymentAmount);
+        formData.append("payment_date", paymentDate);
+
+        fetch("add-payment.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString(),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Payment added successfully!");
+                location.reload();
             } else {
                 alert("Error: " + data.message);
             }
@@ -168,31 +133,31 @@ document.addEventListener("DOMContentLoaded", function () {
     //function to update the debt table after changes have been made
     function updateDebtTable() {
         console.log("✅ updateDebtTable() function triggered!");
-        
+
         const debtsContainer = document.getElementById("debt-list");
         if (!debtsContainer) {
             console.error("❌ Error: debtsContainer element not found.");
             return;
         }
-    
+
         console.log("Current debts array:", debts); // Debugging the debts array
-    
+
         debtsContainer.innerHTML = ""; // Clear previous rows
-    
+
         if (debts.length === 0) {
             console.log("✅ No debts found. Showing empty table message.");
             debtsContainer.innerHTML = "<tr><td colspan='6' class='text-muted'>No debts added yet.</td></tr>";
             totalDebtSpan.textContent = "$0.00";
             return;
         }
-    
+
         debts.forEach(debt => {
             console.log("Processing debt:", debt); // Debugging each debt object
-    
+
             const amountOwed = parseFloat(debt.amount_owed) || 0;
             const minPayment = parseFloat(debt.min_payment) || 0;
             const interestRate = parseFloat(debt.interest_rate) || 0;
-    
+
             const row = document.createElement("tr");
             row.id = `debt-row-${debt.debt_id}`;
             row.innerHTML = `
@@ -205,24 +170,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     <button class="btn btn-danger btn-sm delete-btn" onclick="deleteDebt(${debt.debt_id})">Delete</button>
                 </td>
             `;
-    
+
             debtsContainer.appendChild(row);
         });
-    
+
         console.log(" Debt table updated successfully!");
     }
-    
+
 
 
         // Update total debt
         const totalDebt = debts.reduce((sum, debt) => sum + (Number(debt.amount_owed) || 0), 0);
         document.getElementById("total-debt").textContent = `$${totalDebt.toFixed(2)}`;
-    
+
 
 
 
     // Function to delete a debt
-    // Delete a debt
     window.deleteDebt = function (debtId) {
         if (!confirm("Are you sure you want to delete this debt?")) return;
 
@@ -235,8 +199,9 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             if (data.success) {
                 alert("Debt deleted successfully!");
-                debts = debts.filter(d => d.debt_id !== debtId);
+                debts = debts.filter(debt => debt.debt_id !== debtId);
                 updateDebtTable();
+                updateDebtsSection();
             } else {
                 alert("Error: " + data.message);
             }
@@ -244,31 +209,112 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(error => console.error("Error:", error));
     };
 
-    // Toggle avalanche/snowball label
-    window.toggleMethod = function (toggle) {
-        const selectedMethod = toggle.checked ? "avalanche" : "snowball";
-        document.getElementById("methodLabel").textContent = toggle.checked
-            ? "Avalanche Method"
-            : "Snowball Method";
+    window.deletePayment = function (paymentId) {
+        if (!confirm("Are you sure you want to delete this payment?")) return;
 
-        if (toggle.checked) {
-            toggle.classList.add("avalanche");
-            toggle.classList.remove("snowball");
-        } else {
-            toggle.classList.add("snowball");
-            toggle.classList.remove("avalanche");
-        }
-        // If you want to do something special with the table based on method, do it here:
-        // updateDebtTableWithMethod(selectedMethod); // Or remove if not needed
+        fetch("delete-payment.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `payment_id=${paymentId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Payment deleted successfully!");
+                window.reload();
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
     };
 
-    // Fetch debts from get-debts.php and update the table
-    function fetchDebtsAndUpdateTable() {
+    window.updateDebt = function (debtId) {
+        // Fetch input elements
+        const debtNameInput = document.getElementById("edit-debt-name");
+        const debtAmountInput = document.getElementById("edit-debt-amount");
+        const minPaymentInput = document.getElementById("edit-min-payment");
+        const interestRateInput = document.getElementById("edit-interest-rate");
+
+        // Check if any element is missing
+        if (!debtNameInput || !debtAmountInput || !minPaymentInput || !interestRateInput) {
+            console.error("One or more input fields are missing.");
+            return;
+        }
+
+        // Get values from input fields
+        const debtName = debtNameInput.value.trim();
+        const debtAmount = parseFloat(debtAmountInput.value) || 0;
+        const minPayment = parseFloat(minPaymentInput.value) || 0;
+        const interestRate = parseFloat(interestRateInput.value) || 0;
+
+        // Validate input values
+        if (!debtName || debtAmount <= 0 || minPayment <= 0 || interestRate < 0) {
+            alert("Please enter valid debt details.");
+            return;
+        }
+
+        // Prepare form data
+        const formData = new URLSearchParams();
+        formData.append("debt_id", debtId);
+        formData.append("debt_name", debtName);
+        formData.append("debt_amount", debtAmount);
+        formData.append("min_payment", minPayment);
+        formData.append("interest_rate", interestRate);
+
+        // Send AJAX request to update-debt.php
+        fetch("update-debt.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString(),
+        })
+
+        .then(response => response.json())
+        .then(data => {
+            console.log("Update Response:", data);
+            if (data.success) {
+                alert("Debt updated successfully!");
+                location.href = "edit-debt.php?debt_id=2" + debtId; // Redirect to main debts page
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    };
+
+    function updateDebtsSection() {
+        if (!debtsContainer) {
+            console.error("Error: debtsContainer element not found.");
+            return;
+        }
+
+        debtsContainer.innerHTML = "<h2 class='debt-account'>Debts</h2>";
+
+        if (debts.length === 0) {
+            debtsContainer.innerHTML += "<p class='text-muted'>No debts added yet.</p>";
+            return;
+        }
+
+        debts.forEach(debt => {
+            const debtItem = document.createElement("div");
+            debtItem.classList.add("debt-item");
+            debtItem.id = `debt-item-${debt.debt_id}`;
+            debtItem.innerHTML = `
+                <div>${debt.debt_name}</div>
+                <button onclick="window.location.href='edit-debt.php?debt_id=${debt.debt_id}'">GO</button>
+            `;
+            debtsContainer.appendChild(debtItem);
+        });
+    }
+
+
+    function fetchDebtsAndUpdateSection() {
         fetch("get-debts.php")
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     debts = data.debts;
+                    updateDebtsSection();
                     updateDebtTable();
                 } else {
                     console.error("Error fetching debts:", data.message);
@@ -277,10 +323,9 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error:", error));
     }
 
-    // Only fetch debts if we are on the account page
     if (window.location.pathname.includes("account.php")) {
-        fetchDebtsAndUpdateTable();
+        fetchDebtsAndUpdateSection(); // make sure this runs on account page only, caused issues on edit-debt page
     } else {
-        console.log("Skipping fetchDebtsAndUpdateTable() on non-account pages");
+        console.log("Skipping fetchDebtsAndUpdateSection() on edit-debt.php");
     }
 });

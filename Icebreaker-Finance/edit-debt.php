@@ -212,12 +212,7 @@ if (!$debt) {
                             <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
                             <td>$<?= number_format($break['principal'], 2) ?></td>
                             <td>$<?= number_format($break['interest'], 2) ?></td>
-                            <td>
-                                <form method="POST" action="delete-payment.php">
-                                    <input type="hidden" name="payment_id" value="<?= $payment['payment_id'] ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-                            </td>
+                            <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

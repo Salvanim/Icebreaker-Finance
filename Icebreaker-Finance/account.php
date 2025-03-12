@@ -54,6 +54,7 @@ function getDebtActivity($userId) {
 // get data for the page
 $debts = getUserDebts($userId);
 $recentActivity = getDebtActivity($userId);
+
 ?>
 
 <!DOCTYPE html>
@@ -62,8 +63,10 @@ $recentActivity = getDebtActivity($userId);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Details</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 <body>
 <?php
@@ -83,35 +86,71 @@ if (isset($_SESSION['isLoggedIn'])) {
         </div>
     <?php endif; ?>
 
-    <!-- debt list section (server-side rendered) -->
+    <!-- debt list section -->
     <div class="container my-4">
-        <h2 class="text-center custom-blue">Debts</h2>
-        <div class="list-group">
-            <?php if (!empty($debts)) : ?>
-                <?php foreach ($debts as $debt) : ?>
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="fw-bold"><?= htmlspecialchars($debt['debt_name']) ?></span>
-                        <a href="edit-debt.php?debt_id=<?= $debt['debt_id'] ?>" class="btn btn-sm btn-primary">GO</a>
-                    </div>
-                <?php endforeach; ?>
-            <?php else : ?>
-                <p class="text-muted">No debts added yet.</p>
-            <?php endif; ?>
-        </div>
+    <h2 class="text-center custom-blue">Debts</h2>
+
+    <!-- Toggle Button for Sorting -->
+    <div class="toggle-method">
+        <button id="snowball-btn" class="active" onclick="toggleDebtMethod('snowball')">Snowball</button>
+        <button id="avalanche-btn" onclick="toggleDebtMethod('avalanche')">Avalanche</button>
     </div>
+    <div class="list-group">
+        <?php if (!empty($debts)) : ?>
+            <?php foreach ($debts as $debt) : ?>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><?= htmlspecialchars($debt['debt_name']) ?></span>
+                    <a href="edit-debt.php?debt_id=<?= $debt['debt_id'] ?>" class="btn btn-sm btn-primary">GO</a>
 
-    <!-- Debt Tracker Banner -->
-    <section class="banner bg-primary text-white text-center py-2">
-        <div class="container">
-            <h1 class="display-4">Debt Calculator</h1>
-            <p class="lead">Take control of your finances with our easy-to-use calculator.</p>
-        </div>
-    </section>
+                </div>
+            <?php endforeach; ?>
+        <?php else : ?>
+            <p class="text-muted">No debts added yet.</p>
+        <?php endif; ?>
+    </div>
+</div>
 
-    <section class="debt-method">
-        <div class="container debt-calculator-container">
-            <!-- Error Message Container -->
-            <div id="error-message" class="error-message"></div>
+
+<!-- Debt Tracker -->
+<section class="banner">
+    <p class="banner-text">Debt Calculator</p>
+</section>
+
+<section class="debt-method">
+    <div class="container debt-calculator-container">
+        <!-- Error Message Container -->
+        <div id="error-message" class="error-message"></div>
+
+        <!-- Plus button to toggle debt form -->
+        <button class="btn btn-primary btn-lg add-debt-btn" onclick="toggleDebtForm()">+</button>
+
+        <!-- Hidden debt form container -->
+    <div id="debt-form-container" class="container mt-3 hidden">
+        <form id="debt-form" class="row g-2 align-items-center">
+            <div class="col-12 col-md-auto">
+                <input type="text" id="debt-name" class="form-control" placeholder="Debt Name" required />
+            </div>
+            <div class="col-12 col-md-auto">
+                <select id="method" class="form-select" required>
+                    <option value="" disabled selected>Select Method</option>
+                    <option value="snowball">Snowball</option>
+                    <option value="avalanche">Avalanche</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-auto">
+                <input type="number" id="debt-amount" class="form-control" placeholder="Amount" required />
+            </div>
+            <div class="col-12 col-md-auto">
+                <input type="number" id="min-payment" class="form-control" placeholder="Min Payment" required />
+            </div>
+            <div class="col-12 col-md-auto">
+                <input type="number" step="0.01" id="interest-rate" class="form-control" placeholder="Interest (%)" required />
+            </div>
+            <div class="col-12 col-md-auto">
+                <button type="button" class="btn btn-success" onclick="addDebt()">GO</button>
+            </div>
+        </form>
+    </div>
 
             <!-- Plus button to toggle debt form -->
             <button class="btn btn-primary btn-lg add-debt-btn" onclick="toggleDebtForm()">+</button>
@@ -227,12 +266,13 @@ if (isset($_SESSION['isLoggedIn'])) {
             <strong>Total Debt:</strong> $<span id="total-debt-mobile">0</span>
         </div>
     </div>
+</section>
+
 
     <footer class="footer">
         <p>© 2025 Icebreaker Finance. All rights reserved.</p>
     </footer>
 
-    <!-- Use the updated script.js below -->
     <script src="script.js"></script>
 </body>
 </html>

@@ -6,58 +6,69 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import io
 import base64
-from matplotlib.dates import DateFormatter
 
 class DefinePlot:
     def __init__(self, data=[], columns=[]):
         self.data = data
         self.columns = columns
+        # Convert to DataFrame and ensure datetime sorting
         self.dataframe = pd.DataFrame(data, columns=columns)
-        # Ensure Amount is numeric and Date is datetime
-        self.dataframe["Amount"] = pd.to_numeric(self.dataframe["Amount"], errors='coerce')
-        self.dataframe["Date"] = pd.to_datetime(self.dataframe["Date"], errors='coerce')
+        self.dataframe["Date"] = pd.to_datetime(self.dataframe["Date"])
+        self.dataframe["Amount"] = pd.to_numeric(self.dataframe["Amount"])
+        self.dataframe = self.dataframe.sort_values("Date")  # Ensure chronological order
         self.fig = None
 
     def getImageBase64(self):
         if self.fig:
             buf = io.BytesIO()
-            self.fig.savefig(buf, format='png')
+            self.fig.savefig(buf, format='png', bbox_inches='tight')
             buf.seek(0)
             return base64.b64encode(buf.getvalue()).decode('utf-8')
         else:
-            return "No plot has been created yet."
+            return "No plot created."
 
     def line(self, xColumnName, yColumnName, title='', xlabel='', ylabel='', color='blue', linewidth=2, marker='o'):
-        self.fig, ax = plt.subplots(figsize=(10, 6))  # Increase figure size for better label visibility
-        ax.plot(self.dataframe[xColumnName], self.dataframe[yColumnName], color=color, linewidth=linewidth, marker=marker)
+        self.fig, ax = plt.subplots(figsize=(12, 6))
 
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
+        # Use index for x-axis positions
+        x_values = range(len(self.dataframe))
+        dates = self.dataframe[xColumnName].dt.strftime('%Y-%m-%d').tolist()
 
-        # Annotate each point with its value
-        for i, row in self.dataframe.iterrows():
-            value = row[yColumnName]
-            formatted_value = f"{value:g}"  # Removes unnecessary trailing zeros
-            offset = 5 if i % 2 == 0 else -15  # Alternating offsets for better spacing
+        # Plot with numerical x-values
+        ax.plot(
+            x_values,
+            self.dataframe[yColumnName],
+            color=color,
+            linewidth=linewidth,
+            marker=marker,
+            markersize=8
+        )
 
-            ax.annotate(formatted_value,
-                        (row[xColumnName], value),
-                        textcoords="offset points",
-                        xytext=(0, offset),  # Offset in points
-                        ha='center', fontsize=10, color='black')
+        # Configure axis labels and title
+        ax.set_title(title, fontsize=14)
+        ax.set_xlabel(xlabel, fontsize=12)
+        ax.set_ylabel(ylabel, fontsize=12)
 
-        # Add gridlines
-        ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)  # Dashed lines, slightly transparent
+        # Set x-ticks to show all dates
+        ax.set_xticks(x_values)
+        ax.set_xticklabels(dates, rotation=40, ha='right', fontsize=10)
 
-        # Set the x-ticks to only the provided dates
-        ax.set_xticks(self.dataframe[xColumnName])
-        plt.xticks(rotation=20)
+        # Add value annotations
+        for i, (x, y) in enumerate(zip(x_values, self.dataframe[yColumnName])):
+            ax.annotate(
+                f"${y:.2f}",
+                (x, y),
+                textcoords="offset points",
+                xytext=(0, 10),
+                ha='center',
+                fontsize=9,
+                color='darkblue'
+            )
 
-        # Set the x-axis label format for the dates
-        ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
-
-        # Adjust layout to prevent overlap
+        # Add grid and styling
+        ax.grid(True, linestyle='--', alpha=0.7)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
         plt.tight_layout()
 
 if __name__ == "__main__":
@@ -66,33 +77,23 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        # Get and validate input
+        # Process input data
         raw_input = sys.argv[1]
-        input_data = raw_input
-        individualRows = input_data.split("$")
-        individualRows = individualRows[:len(individualRows)-1]
-        finalData = []
-        for row in individualRows:
-            finalData.append(row.split(","))
+        rows = [row.split(",") for row in raw_input.split("$") if row]
 
-        # Rest of plotting logic
-        plotter = DefinePlot(finalData, ["Date", "Amount"])
-        plotter.line("Date", "Amount")
-        plot_method = getattr(plotter, "line")
-        plotArguments = {
-            "xColumnName": "Date",
-            "yColumnName": "Amount",
-            "title": "Payment History",
-            "xlabel": "Date",
-            "ylabel": "Amount ($)",
-            "color": "blue",
-            "linewidth": 2,
-            "marker": "o"
-        }
-        plot_method(**plotArguments)
+        # Create plotter instance
+        plotter = DefinePlot(rows, ["Date", "Amount"])
+        plotter.line(
+            "Date",
+            "Amount",
+            title="Debt Balance Timeline",
+            xlabel="Transaction Dates",
+            ylabel="Balance Amount ($)"
+        )
+
+        # Output image
         print(plotter.getImageBase64())
 
     except Exception as e:
-        print(f"Error: {e}")
-        sys.stderr.write(f"FULL ERROR: {str(e)}\n")
+        print(f"Error: {str(e)}")
         sys.exit(1)

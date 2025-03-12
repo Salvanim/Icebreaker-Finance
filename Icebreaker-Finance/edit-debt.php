@@ -4,11 +4,8 @@ require __DIR__ . '/model/db.php';
 
 // Ensure user is logged in
 if (!isset($_SESSION['isLoggedIn'])) {
-    echo"<p hidden id='isLoggedIn'> 0 </p>";
     header("Location: index.php");
     exit;
-} else {
-    echo "<p hidden id='isLoggedIn'>" . $_SESSION['isLoggedIn'] . "</p>";
 }
 
 $userId = $_SESSION['user_id'] ?? null;
@@ -100,6 +97,7 @@ if (!empty($payments)) {
     $dateStarted = date_create($debt["date_added"])->format('Y-m-d');
     $today = date_create("today")->format('Y-m-d');
     $datesBetween = getDatesBetween($dateStarted, $today);
+    var_dump($datesBetween);
     $interestRate = $debt["interest_rate"]/1200;
 
     foreach ($chronologicalPayments as $payment) {
@@ -197,7 +195,6 @@ if (!$debt) {
                 <tr>
                     <th>Payment Date</th>
                     <th>Amount</th>
-                    <th>Principal</th>
                     <th>Interest</th>
                     <th>Action</th>
                 </tr>
@@ -210,9 +207,13 @@ if (!$debt) {
                         <tr id="payment-row-<?= $payment['payment_id'] ?>">
                             <td><?= date("M d, Y", strtotime($payment['payment_date'])) ?></td>
                             <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
-                            <td>$<?= number_format($break['principal'], 2) ?></td>
                             <td>$<?= number_format($break['interest'], 2) ?></td>
-                            <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>)">Delete</button></td>
+                            <td>
+                                <form method="POST" action="delete-payment.php">
+                                    <input type="hidden" name="payment_id" value="<?= $payment['payment_id'] ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

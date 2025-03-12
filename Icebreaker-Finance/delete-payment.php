@@ -21,18 +21,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["payment_id"])) {
     }
 
     try {
-        $stmt = $db->prepare("DELETE FROM debt_lookup WHERE payment_id = ?");
+        // Retrieve the associated debt_id
+        $stmt = $db->prepare("
+            SELECT debt_id FROM debt_payments
+            WHERE payment_id = ?
+            AND debt_id IN (SELECT debt_id FROM debt_lookup WHERE user_id = ?)
+        ");
+        $stmt->execute([$paymentId, $userId]);
+        $debt = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$debt) {
+            $_SESSION['message'] = "Payment not found.";
+            header("Location: payment-transactions.php");
+            exit;
+        }
+
+        $debtId = $debt['debt_id'];
+
+        // Delete the payment
+        $stmt = $db->prepare("DELETE FROM debt_payments WHERE payment_id = ?");
         $stmt->execute([$paymentId]);
 
         if ($stmt->rowCount() > 0) {
-            echo json_encode(["success" => true]);
+            $_SESSION['message'] = "Payment deleted successfully.";
         } else {
-            echo json_encode(["success" => false, "message" => "Debt not found or unauthorized"]);
+            $_SESSION['message'] = "Payment could not be deleted.";
         }
     } catch (PDOException $e) {
-        echo json_encode(["success" => false, "message" => "Database error"]);
+        $_SESSION['message'] = "Error deleting payment.";
     }
 } else {
     $_SESSION['message'] = "Invalid request method.";
 }
+
+// Redirect back to the edit_debt page with the correct debt_id
+header("Location: edit-debt.php?debt_id=" . urlencode($debtId));
+exit;
 ?>

@@ -49,11 +49,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const debtName = debtNameInput.value.trim();
         const method = methodInput.value;
-        const amountOwed = parseFloat(debt.amount_owed) || 0;
+        const amountOwed = parseFloat(debtAmountInput.value) || 0;
         const minPayment = parseFloat(minPaymentInput.value) || 0;
         const interestRate = parseFloat(interestRateInput.value) || 0;
 
-        if (!debtName || !method || debtAmount <= 0 || minPayment <= 0 || interestRate < 0) {
+        if (!debtName || !method || amountOwed <= 0 || minPayment <= 0 || interestRate < 0) {
             alert("Please enter valid debt details.");
             return;
         }
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new URLSearchParams();
         formData.append("debt_name", debtName);
         formData.append("debt_type", method);
-        formData.append("debt_amount", debtAmount);
+        formData.append("debt_amount", amountOwed);
         formData.append("min_payment", minPayment);
         formData.append("interest_rate", interestRate);
 
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     debt_id: data.debt_id,
                     debt_name: debtName,
                     debt_type: method,
-                    amount_owed: debtAmount,
+                    amount_owed: amountOwed,
                     min_payment: minPayment,
                     interest_rate: interestRate
                 });

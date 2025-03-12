@@ -30,14 +30,25 @@ class DefinePlot:
     def line(self, xColumnName, yColumnName, title='', xlabel='', ylabel='', color='blue', linewidth=2, marker='o'):
         self.fig, ax = plt.subplots(figsize=(10, 6))  # Increase figure size for better label visibility
         ax.plot(self.dataframe[xColumnName], self.dataframe[yColumnName], color=color, linewidth=linewidth, marker=marker)
+
         ax.set_title(title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
 
         # Annotate each point with its value
         for i, row in self.dataframe.iterrows():
-            ax.text(row[xColumnName], row[yColumnName], f"{row[yColumnName]:.2f}",
-                    ha='left', va='bottom', fontsize=10, color='black')
+            value = row[yColumnName]
+            formatted_value = f"{value:g}"  # Removes unnecessary trailing zeros
+            offset = 5 if i % 2 == 0 else -15  # Alternating offsets for better spacing
+
+            ax.annotate(formatted_value,
+                        (row[xColumnName], value),
+                        textcoords="offset points",
+                        xytext=(0, offset),  # Offset in points
+                        ha='center', fontsize=10, color='black')
+
+        # Add gridlines
+        ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)  # Dashed lines, slightly transparent
 
         # Set the x-ticks to only the provided dates
         ax.set_xticks(self.dataframe[xColumnName])

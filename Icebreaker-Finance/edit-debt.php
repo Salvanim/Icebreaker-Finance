@@ -88,59 +88,22 @@ if (!empty($payments)) {
 }
 
 // Generate plot image if payments exist (unchanged from before)
+// Generate plot image if payments exist
 $imageSrc = '';
 if (!empty($payments)) {
     $chronologicalPayments = array_reverse($payments);
+    $amountOwed = $debt["amount_owed"];
+    $plotDataString = $debt["date_added"] . "," . $amountOwed . "$";
+    $dateStarted = date_create($debt["date_added"])->format('Y-m-d');
+    $today = date_create("today")->format('Y-m-d');
+    $datesBetween = getDatesBetween($dateStarted, $today);
+    $interestRate = $debt["interest_rate"]/1200;
 
-    // Prepare data for the plot with interest calculations
-    $plotDataString = "";
-    $balance = $debt['amount_owed'];
-    $monthlyInterestRate = $debt['interest_rate'] / 12 / 100;
-
-    // Generate all months from the debt's start date to current month
-    $startDate = new DateTime($debt['date_added']);
-    $startDate->modify('first day of this month'); // Start from the beginning of the month
-    $endDate = new DateTime();
-    $endDate->modify('first day of next month'); // Include current month
-
-    $interval = new DateInterval('P1M');
-    $period = new DatePeriod($startDate, $interval, $endDate);
-
-    // Group payments by their month
-    $paymentsByMonth = [];
     foreach ($chronologicalPayments as $payment) {
-        $paymentMonth = (new DateTime($payment['payment_date']))->format('Y-m');
-        if (!isset($paymentsByMonth[$paymentMonth])) {
-            $paymentsByMonth[$paymentMonth] = 0;
-        }
-        $paymentsByMonth[$paymentMonth] += $payment['payment_amount'];
+        $calculatedChange = $amountOwed - $payment['payment_amount'];
+        $plotDataString .= $payment['payment_date'] . "," . $calculatedChange . "$";
+        $amountOwed = $calculatedChange;
     }
-
-    // Calculate balance for each month
-    $plotData = [];
-    foreach ($period as $date) {
-        $currentMonth = $date->format('Y-m');
-        $monthEnd = $date->format('Y-m-t');
-
-        // Apply interest
-        $interest = $balance * $monthlyInterestRate;
-        $balance += $interest;
-
-        // Apply payments for the current month
-        if (isset($paymentsByMonth[$currentMonth])) {
-            $balance -= $paymentsByMonth[$currentMonth];
-            if ($balance < 0) $balance = 0;
-        }
-
-        // Record the balance at the end of the month
-        $plotData[$monthEnd] = $balance;
-    }
-
-    // Build the plot data string
-    foreach ($plotData as $date => $amount) {
-        $plotDataString .= $date . "," . number_format($amount, 2, '.', '') . "$";
-    }
-
     $input = $plotDataString;
 
     $graphArguments = [
@@ -262,7 +225,7 @@ if (!$debt) {
 
         <!-- Add Payment Form (unchanged) -->
         <h3>Add a Payment</h3>
-        <form id="add-payment-form" action="add-payment.php" method="POST" class="row g-3">
+        <form id="add-payment-form" class="row g-3">
             <div class="col-md-6">
                 <input type="number" id="payment-amount" class="form-control" placeholder="Payment Amount" required>
             </div>
@@ -270,8 +233,7 @@ if (!$debt) {
                 <input type="date" id="payment-date" class="form-control" required>
             </div>
             <div class="col-12">
-                <input type="hidden" name="debt_id" value="<?= $debtId ?>">
-                <button type="submit" class="btn btn-danger btn-sm">Submit</button>
+                <button type="button" class="btn btn-primary" onclick="addPayment(<?= $debtId ?>)">Submit</button>
             </div>
         </form>
 

@@ -1,4 +1,4 @@
-<?php 
+<?php
 session_start();
 require __DIR__ . '/model/db.php';
 
@@ -35,13 +35,13 @@ function getUserDebts($userId) {
 function getDebtActivity($userId) {
     global $db;
     if (!$db || !$userId) return [];
-    
+
     try {
         $stmt = $db->prepare("
-            SELECT d.debt_type, p.payment_date, p.payment_amount 
-            FROM debt_lookup d 
-            JOIN debt_payments p ON d.debt_id = p.debt_id 
-            WHERE d.user_id = ? 
+            SELECT d.debt_type, p.payment_date, p.payment_amount
+            FROM debt_lookup d
+            JOIN debt_payments p ON d.debt_id = p.debt_id
+            WHERE d.user_id = ?
             ORDER BY p.payment_date DESC
         ");
         $stmt->execute([$userId]);
@@ -66,7 +66,15 @@ $recentActivity = getDebtActivity($userId);
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php include 'nav.php'; ?>  
+<?php
+if (isset($_SESSION['isLoggedIn'])) {
+    echo "<p hidden id='isLoggedIn'>" . $_SESSION['isLoggedIn'] . "</p>";
+} else {
+    echo"<p hidden id='isLoggedIn'> 0 </p>";
+}
+
+?>
+    <?php include 'nav.php'; ?>
 
     <!--admin only button for modifying user accounts-->
     <?php if ($userRole === "admin") : ?>
@@ -78,7 +86,7 @@ $recentActivity = getDebtActivity($userId);
     <!-- debt list section (server-side rendered) -->
     <div class="container my-4">
         <h2 class="text-center custom-blue">Debts</h2>
-        <div class="list-group">    
+        <div class="list-group">
             <?php if (!empty($debts)) : ?>
                 <?php foreach ($debts as $debt) : ?>
                     <div class="list-group-item d-flex justify-content-between align-items-center">
@@ -137,10 +145,10 @@ $recentActivity = getDebtActivity($userId);
             </div>
 
             <!-- Toggle Switch for Snowball / Avalanche -->
-            <div class="form-check form-switch text-center my-3">
+            <!--<div class="form-check form-switch text-center my-3">
                 <input class="form-check-input" type="checkbox" id="methodToggle" onchange="toggleMethod(this)">
                 <label class="form-check-label" for="methodToggle" id="methodLabel">Snowball Method</label>
-            </div>
+            </div>-->
 
             <!-- Debt Table Layout for Medium and Larger Screens -->
             <div class="table-responsive">
@@ -177,7 +185,7 @@ $recentActivity = getDebtActivity($userId);
                     </tbody>
                 </table>
             </div>
-            
+
             <?php
             // Calculate total debt server-side for the initial page load
             $totalDebt = 0;

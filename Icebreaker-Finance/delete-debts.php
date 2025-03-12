@@ -2,27 +2,40 @@
 session_start();
 require __DIR__ . '/model/db.php';
 
-if (!isset($_SESSION['isLoggedIn'])) {
-    echo json_encode(["success" => false, "message" => "Unauthorized"]);
-    exit;
+header('Content-Type: application/json');
+
+if (!isset($_SESSION['user_id'])) {
+    die(json_encode(['success' => false, 'message' => 'Authentication required']));
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['debt_id'])) {
-    $debtId = $_POST['debt_id'];
+$userId = $_SESSION['user_id'];
+$debtId = $_POST['debt_id'] ?? null;
 
-    try {
-        $stmt = $db->prepare("DELETE FROM debt_lookup WHERE debt_id = ? AND user_id = ?");
-        $stmt->execute([$debtId, $_SESSION['user_id']]);
+try {
+    $db->beginTransaction();
 
-        if ($stmt->rowCount() > 0) {
-            echo json_encode(["success" => true]);
-        } else {
-            echo json_encode(["success" => false, "message" => "Debt not found or unauthorized"]);
-        }
-    } catch (PDOException $e) {
-        echo json_encode(["success" => false, "message" => "Database error"]);
+    // Delete payments first
+    $stmt = $db->prepare("DELETE FROM debt_payments
+                        WHERE debt_id IN (
+                            SELECT debt_id FROM debt_lookup
+                            WHERE debt_id = ? AND user_id = ?
+                        )");
+    $stmt->execute([$debtId, $userId]);
+
+    // Delete debt
+    $stmt = $db->prepare("DELETE FROM debt_lookup
+                        WHERE debt_id = ? AND user_id = ?");
+    $stmt->execute([$debtId, $userId]);
+
+    $db->commit();
+
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'No debt found']);
     }
-} else {
-    echo json_encode(["success" => false, "message" => "Invalid request"]);
+
+} catch (PDOException $e) {
+    $db->rollBack();
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
-?>

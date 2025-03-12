@@ -1,6 +1,21 @@
 <?php
 session_start();
 require __DIR__ . '/model/db.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Get the value and ensure it's treated as a boolean
+    $value = $_POST['value'] ?? null;
+
+    if ($value !== null) {
+        $_SESSION['isLoggedIn'] = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        echo json_encode(["status" => "success", "isLoggedIn" => $_SESSION['isLoggedIn']], JSON_PRETTY_PRINT);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Invalid input"]);
+    }
+    exit;
+}
+
+
 // Ensure the user is an admin
 if (!isset($_SESSION['isLoggedIn']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: index.php");
@@ -136,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             </div>
         </div>
     </div>
-</div>    
+</div>
 
 
 

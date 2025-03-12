@@ -22,6 +22,10 @@ try {
     $stmt = $db->prepare("INSERT INTO debt_payments (debt_id, payment_amount, payment_date) VALUES (?, ?, ?)");
     $stmt->execute([$debtId, $paymentAmount, $paymentDate]);
 
+    // Update debt balance
+    /*$updateStmt = $db->prepare("UPDATE debt_lookup SET balance = amount_owed - ? WHERE debt_id = ?");
+    $updateStmt->execute([$paymentAmount, $debtId]);*/
+
     echo json_encode(["success" => true]);
 } catch (PDOException $e) {
     echo json_encode(["success" => false, "message" => $e->getMessage()]);

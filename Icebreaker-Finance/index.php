@@ -10,9 +10,16 @@ require __DIR__ . '/model/db.php';
     <title>Icebreaker Finance Home</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-      
+
 </head>
 <body>
+<?php
+    if (isset($_SESSION['isLoggedIn'])) {
+        echo "<p hidden id='isLoggedIn'>" . $_SESSION['isLoggedIn'] . "</p>";
+    } else {
+        echo"<p hidden id='isLoggedIn'> 0 </p>";
+    }
+?>
 <?php include 'nav.php'; ?>
 
     <section class="banner bg-primary text-white text-center py-2">
@@ -29,7 +36,7 @@ require __DIR__ . '/model/db.php';
       <div class="row justify-content-center">
           <div class="col-12 col-lg-10 col-xl-8">
               <div class="ratio ratio-16x9">
-                  <iframe 
+                  <iframe
                       src="https://www.youtube.com/embed/Q5jlY8_WmEE?si=Rkmu7_eIzgTBIxkn"
                       title="Debt Snowball"
                       allowfullscreen>
@@ -46,7 +53,7 @@ require __DIR__ . '/model/db.php';
       <div class="row justify-content-center">
           <div class="col-12 col-lg-10 col-xl-8">
               <div class="ratio ratio-16x9">
-                  <iframe 
+                  <iframe
                       src="https://www.youtube.com/embed/S19s7RwpKSM?si=UupX9dSsHdSNrE5G"
                       title="Debt Avalanche"
                       allowfullscreen>
@@ -59,7 +66,7 @@ require __DIR__ . '/model/db.php';
     <!--Debt Tracker-->
     <section class="banner bg-primary text-white text-center py-3 mt-5">
     <div class="container">
-    <h1 class="display-4">Take the First Step</h1> 
+    <h1 class="display-4">Take the First Step</h1>
         <p class="lead">Try our debt repayment calculator</p>
     </div>
     </section>
@@ -100,7 +107,7 @@ require __DIR__ . '/model/db.php';
             </div>
 
             <!-- table layout for medium and large screens - shows table -->
-            <div class="d-none d-md-block">
+            <div class="d-block d-md-block">
                 <div class="row justify-content-center">
                     <div class="col-12 col-md-10">
                         <div class="debt-table table-responsive">

@@ -4,8 +4,11 @@ require __DIR__ . '/model/db.php';
 
 // Ensure user is logged in
 if (!isset($_SESSION['isLoggedIn'])) {
+    echo"<p hidden id='isLoggedIn'> 0 </p>";
     header("Location: index.php");
     exit;
+} else {
+    echo "<p hidden id='isLoggedIn'>" . $_SESSION['isLoggedIn'] . "</p>";
 }
 
 $userId = $_SESSION['user_id'] ?? null;

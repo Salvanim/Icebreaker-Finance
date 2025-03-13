@@ -161,6 +161,7 @@ if (isset($_SESSION['isLoggedIn'])) {
     <?php include 'nav.php';
         if($debt['balance'] <= 0){?>
             <div class="snowflakes" aria-hidden="true">
+        <!--Defines large amount fo sow flakes -->
                 <div class="snowflake">
                     <div class="inner">❅</div>
                 </div>

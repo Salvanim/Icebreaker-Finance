@@ -72,7 +72,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <label for="newPassword">New Password:</label>
             <input type="password" id="newPassword" name="newPassword">
 
-            <button type="submit">Update</button>
+            <button class="btn-primary" type="submit">Update</button>
         </form>
     </div>
 </div>

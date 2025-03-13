@@ -189,6 +189,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (debtFormContainer) {
                         debtFormContainer.classList.add("hidden");
                     }
+                    if (window.location.pathname.includes("account.php")) {
+                        window.reload();
+                    }
                 } else {
                     alert("Error: " + data.message);
                 }

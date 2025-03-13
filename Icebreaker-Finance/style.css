@@ -107,45 +107,49 @@
     transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
 }
 
+/* MODAL STYLING */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000 !important; /* Ensures modal is on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 1 !important; /* FORCE visibility */
+    visibility: visible !important;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
 
 /* MODAL CONTENT */
 .modal-content {
     background-color: white;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: fixed !important; /* Use fixed positioning instead of absolute */
+    top: 10% !important;         /* Force modal to start 10% from the top */
+    left: 50% !important;
+    transform: translate(-50%, 0) !important; /* Only center horizontally */
     padding: 25px;
     border-radius: 8px;
     width: 35%;
     max-width: 500px;
+    max-height: 80vh;           /* Limit height and allow scrolling */
+    overflow-y: auto;
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
     text-align: center;
-    opacity: 1 !important; /* FORCE visibility */
+    opacity: 1 !important;     /* FORCE visibility */
     visibility: visible !important;
     transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-    z-index: 10001 !important; /* Ensures modal is above background */
+    z-index: 10001 !important;   /* Ensures modal content is above backdrop */
 }
 
-/* FIX: When modal is opened, make it fully visible */
+/* When modal is shown */
 .modal.show {
     display: block !important;
     opacity: 1 !important;
     visibility: visible !important;
 }
-/* FIX: Ensure modal content is also visible */
-.modal.show .modal-content {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translate(-50%, -50%) !important; /* Prevents positioning bugs */
-}
 
-/* SHOW MODAL ANIMATION */
-.modal.show .modal-content {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translate(-50%, -50%) !important;
-}
 
 /* CLOSE BUTTON */
 .close {
@@ -278,14 +282,27 @@ body {
     align-items: center;
     width: 100%;
     margin: 20px auto;
+    max-width: 100%;
 }
+
 
 /* RESPONSIVE VIDEO */
 .video-container iframe {
-    width: 100%;
-    max-width: 560px; /* Ensures it's not too large */
-    height: 315px;
-    border: none;
+    display: block;
+    margin: 0 auto;
+  }
+/*DEBT BUSTER VIDEO (fit in container)*/
+  .tool-section iframe,
+.tool-section video {
+  width: 100%;
+  height: 440px;
+}
+
+.admin-video-content iframe,
+.admin-video-content video {
+  width: 100%;
+  max-width: none;
+  height: auto;
 }
 
 
@@ -295,7 +312,7 @@ body {
     font-weight: 700;
     text-align: center;
     margin-top: 20px;
-    Color: #084096;
+    color: #084096;
 }
 
 /* plus button */
@@ -322,6 +339,12 @@ body {
 /*making sure .hidden is globally defined*/
 .hidden {
     display: none !important;
+}
+
+/*make banner smaller than bootstrap size - override*/
+.banner {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
 }
 
 /*centering and alignment of calculator*/
@@ -446,9 +469,11 @@ body {
     margin: 20px auto;
     text-align: center;
     width: 100%;
-    max-width: 600px;
+    max-width: 1000px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+
 
 /* Center the resource lists */
 .debt-buster-container .resource-list {
@@ -480,6 +505,11 @@ body {
     width: 100%;
     min-height: 200px;
     border-radius: 5px;
+}
+
+/* Ensure TinyMCE toolbar displays properly */
+.tox .tox-toolbar {
+    display: flex !important;
 }
 
 /*align modify accounts button for admin under icebreaker finance*/
@@ -527,6 +557,10 @@ body {
 .btn-primary:hover {
     background-color: #062C6B !important;
     border-color: #062C6B !important;
+}
+
+.custom-blue {
+    color: #084096 !important;
 }
 
 
@@ -579,6 +613,8 @@ body {
     }
 }
 
+
+
 /* Container for the toggle */
 .toggle-switch {
     position: relative;
@@ -626,3 +662,13 @@ body {
 .toggle-switch input:checked+.slider::before {
     transform: translateX(26px);
 }
+
+
+.snowflake {
+  color: #fff;
+  font-size: 1em;
+  font-family: Arial, sans-serif;
+  text-shadow: 0 0 5px #000;
+}
+
+.snowflake,.snowflake .inner{animation-iteration-count:infinite;animation-play-state:running}@keyframes snowflakes-fall{0%{transform:translateY(0)}100%{transform:translateY(110vh)}}@keyframes snowflakes-shake{0%,100%{transform:translateX(0)}50%{transform:translateX(80px)}}.snowflake{position:fixed;top:-10%;z-index:9999;-webkit-user-select:none;user-select:none;cursor:default;pointer-events:none;animation-name:snowflakes-shake;animation-duration:3s;animation-timing-function:ease-in-out}.snowflake .inner{animation-duration:10s;animation-name:snowflakes-fall;animation-timing-function:linear}.snowflake:nth-of-type(0){left:1%;animation-delay:0s}.snowflake:nth-of-type(0) .inner{animation-delay:0s}.snowflake:first-of-type{left:10%;animation-delay:1s}.snowflake:first-of-type .inner,.snowflake:nth-of-type(8) .inner{animation-delay:1s}.snowflake:nth-of-type(2){left:20%;animation-delay:.5s}.snowflake:nth-of-type(2) .inner,.snowflake:nth-of-type(6) .inner{animation-delay:6s}.snowflake:nth-of-type(3){left:30%;animation-delay:2s}.snowflake:nth-of-type(11) .inner,.snowflake:nth-of-type(3) .inner{animation-delay:4s}.snowflake:nth-of-type(4){left:40%;animation-delay:2s}.snowflake:nth-of-type(10) .inner,.snowflake:nth-of-type(4) .inner{animation-delay:2s}.snowflake:nth-of-type(5){left:50%;animation-delay:3s}.snowflake:nth-of-type(5) .inner{animation-delay:8s}.snowflake:nth-of-type(6){left:60%;animation-delay:2s}.snowflake:nth-of-type(7){left:70%;animation-delay:1s}.snowflake:nth-of-type(7) .inner{animation-delay:2.5s}.snowflake:nth-of-type(8){left:80%;animation-delay:0s}.snowflake:nth-of-type(9){left:90%;animation-delay:1.5s}.snowflake:nth-of-type(9) .inner{animation-delay:3s}.snowflake:nth-of-type(10){left:25%;animation-delay:0s}.snowflake:nth-of-type(11){left:65%;animation-delay:2.5s}

@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([$username, $email, $hashedPassword]);
 
         echo "Registration successful!";
-        /*
+
         // Get user from database
         $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
         $stmt->execute([$username]);
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header("Location: admin-account-mgmt.php");
                 exit;
             }
-        }*/
+        }
         header("Location: account.php"); // Redirect to account page after registration
         exit;
     }

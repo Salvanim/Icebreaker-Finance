@@ -157,7 +157,48 @@ if (isset($_SESSION['isLoggedIn'])) {
 }
 
 ?>
-    <?php include 'nav.php'; ?>
+    <?php include 'nav.php';
+        if($debt['balance'] <= 0){?>
+            <div class="snowflakes" aria-hidden="true">
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+                <div class="snowflake">
+                    <div class="inner">❅</div>
+                </div>
+            </div>
+        <?php }
+    ?>
 
     <div class="container mt-4">
         <h2 class="text-primary"><?= htmlspecialchars($debt['debt_name']) ?></h2>

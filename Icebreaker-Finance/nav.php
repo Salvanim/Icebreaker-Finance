@@ -155,6 +155,7 @@ if (session_status() === PHP_SESSION_NONE) {
         }
     }
 
+    
     function closeAccountModal() {
         const modal = document.getElementById("accountModal");
         if (modal) {

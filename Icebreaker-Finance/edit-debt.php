@@ -51,6 +51,7 @@ function getDebtPayments($debtId) {
     }
 }
 
+// gets deates every mouth between 2 dates
 function getDatesBetween($startDate, $endDate, &$dates = array()) {
     $dates[] = $startDate;
     $nextDate = date('Y-m-d', strtotime($startDate . ' +1 month'));

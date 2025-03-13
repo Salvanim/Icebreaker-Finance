@@ -150,6 +150,8 @@ $recentActivity = getDebtActivity($userId);
                 <div class="col-12 p-2 col-md-auto">
                     <input type="text" id="debt-name" class="form-control" placeholder="Debt Name" required />
                 </div>
+
+                <!-- Select Debt Method -->
                 <div class="col-12 p-2 col-md-auto">
                     <select id="method" class="form-select" required>
                         <option value="" disabled selected>Select Method</option>
@@ -157,6 +159,8 @@ $recentActivity = getDebtActivity($userId);
                         <option value="avalanche">Avalanche</option>
                     </select>
                 </div>
+
+                <!-- Calculator Inputs -->
                 <div class="col-12 p-2 col-md-auto">
                     <input type="number" id="debt-amount" class="form-control" placeholder="Amount" required />
                 </div>

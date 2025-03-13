@@ -12,6 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $debtName = $_POST['debt_name'] ?? '';
     $debtType = $_POST['debt_type'] ?? '';
     $amountOwed = $_POST['debt_amount'] ?? 0;
+    $balance = $amountOwed;
     $minPayment = $_POST['min_payment'] ?? 0;
     $interestRate = $_POST['interest_rate'] ?? 0;
     $status = 'active';
@@ -23,10 +24,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     try {
-        $stmt = $db->prepare("INSERT INTO debt_lookup (user_id, debt_type, amount_owed, interest_rate, status, debt_name, debt_vis, min_payment, date_added)
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE())");
-                              
-        $stmt->execute([$userId, $debtType, $amountOwed, $interestRate, $status, $debtName, $debtVis, $minPayment]);
+        $stmt = $db->prepare("INSERT INTO debt_lookup (user_id, debt_type, amount_owed, balance, interest_rate, status, debt_name, debt_vis, min_payment, date_added)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE())");
+
+        $stmt->execute([$userId, $debtType, $amountOwed, $balance, $interestRate, $status, $debtName, $debtVis, $minPayment]);
 
         $debtId = $db->lastInsertId();
         echo json_encode(["success" => true, "debt_id" => $debtId]);

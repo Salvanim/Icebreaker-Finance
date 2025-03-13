@@ -23,8 +23,8 @@ try {
     $stmt->execute([$debtId, $paymentAmount, $paymentDate]);
 
     // Update debt balance
-    /*$updateStmt = $db->prepare("UPDATE debt_lookup SET balance = amount_owed - ? WHERE debt_id = ?");
-    $updateStmt->execute([$paymentAmount, $debtId]);*/
+    $updateStmt = $db->prepare("UPDATE debt_lookup SET balance = balance - ? WHERE debt_id = ?");
+    $updateStmt->execute([$paymentAmount, $debtId]);
 
     echo json_encode(["success" => true]);
 } catch (PDOException $e) {

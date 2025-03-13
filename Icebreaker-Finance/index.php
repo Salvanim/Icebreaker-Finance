@@ -95,6 +95,9 @@ require __DIR__ . '/model/db.php';
                         <input type="number" id="debt-amount" class="form-control" placeholder="Debt Amount" required />
                     </div>
                     <div class="col-12 col-md-auto">
+                        <input type="number" id="debt-balance" class="form-control" placeholder="Debt Balance" required />
+                    </div>
+                    <div class="col-12 col-md-auto">
                         <input type="number" id="min-payment" class="form-control" placeholder="Min Payment" required />
                     </div>
                     <div class="col-12 col-md-auto">
@@ -116,6 +119,7 @@ require __DIR__ . '/model/db.php';
                                     <tr>
                                         <th>Debt Name</th>
                                         <th>Debt Amount</th>
+                                        <th>Debt Balance</th>
                                         <th>Minimum Payment</th>
                                         <th>Interest Rate (%)</th>
                                         <th>Payoff Date</th>

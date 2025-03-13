@@ -1,21 +1,6 @@
 <?php
 session_start();
 require __DIR__ . '/model/db.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get the value and ensure it's treated as a boolean
-    $value = $_POST['value'] ?? null;
-
-    if ($value !== null) {
-        $_SESSION['isLoggedIn'] = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-        echo json_encode(["status" => "success", "isLoggedIn" => $_SESSION['isLoggedIn']], JSON_PRETTY_PRINT);
-    } else {
-        echo json_encode(["status" => "error", "message" => "Invalid input"]);
-    }
-    exit;
-}
-
-
 // Ensure the user is an admin
 if (!isset($_SESSION['isLoggedIn']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: index.php");
@@ -77,7 +62,7 @@ function getUserData() {
                  </label>";
             }
 
-            $deleteUserButton = "<button class='delete-user' data-id='{$userID}'>Delete</button>";
+            $deleteUserButton = "<button type='button' class='btn btn-danger btn-sm delete-user' data-id='{$userID}'>Delete User</button>";
 
             $finalOutput .= addToTable($username, $role, $toggleAdminButton, $deleteUserButton);
         }
@@ -120,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Account Mgmt</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -128,7 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 <?php include 'nav.php'; ?>
 <?php include 'pythonInteraction.php'; ?>
 
-<h2>Admin User Management</h2>
+<div class="mt-4">
+<h2 class="mb-4 text-center text-primary">Admin User Management</h2>
 
 <div class="card">
         <div class="card-body">
@@ -158,6 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <p>© 2025 Icebreaker Finance. All rights reserved.</p>
 </footer>
 
+<!--script for admin toggle and delete user-->
 <script>
 $(document).ready(function() {
     $(".toggle-admin").click(function() {

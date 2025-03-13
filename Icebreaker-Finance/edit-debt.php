@@ -4,8 +4,11 @@ require __DIR__ . '/model/db.php';
 
 // Ensure user is logged in
 if (!isset($_SESSION['isLoggedIn'])) {
+    echo"<p hidden id='isLoggedIn'> 0 </p>";
     header("Location: index.php");
     exit;
+} else {
+    echo "<p hidden id='isLoggedIn'>" . $_SESSION['isLoggedIn'] . "</p>";
 }
 
 $userId = $_SESSION['user_id'] ?? null;
@@ -18,7 +21,7 @@ function getDebtDetails($debtId, $userId) {
 
     try {
         $stmt = $db->prepare("
-            SELECT debt_id, debt_name, amount_owed, min_payment, interest_rate, date_added
+            SELECT debt_id, debt_name, amount_owed, balance, min_payment, interest_rate, date_added
             FROM debt_lookup
             WHERE debt_id = ? AND user_id = ?
         ");
@@ -67,7 +70,7 @@ if (!empty($payments)) {
 
     // Calculate initial balance as current amount owed plus total payments made
     $totalPayments = array_sum(array_column($payments, 'payment_amount'));
-    $initialBalance = $debt['amount_owed'] + $totalPayments;
+    $initialBalance = $debt['balance'] + $totalPayments;
     $runningBalance = $initialBalance;
     $monthlyInterestRate = $debt["interest_rate"] / 1200;
 
@@ -97,7 +100,6 @@ if (!empty($payments)) {
     $dateStarted = date_create($debt["date_added"])->format('Y-m-d');
     $today = date_create("today")->format('Y-m-d');
     $datesBetween = getDatesBetween($dateStarted, $today);
-    var_dump($datesBetween);
     $interestRate = $debt["interest_rate"]/1200;
 
     foreach ($chronologicalPayments as $payment) {
@@ -147,13 +149,22 @@ if (!$debt) {
     <script src="script.js" defer></script>
 </head>
 <body>
+<?php
+if (isset($_SESSION['isLoggedIn'])) {
+    echo "<p hidden id='isLoggedIn'>" . $_SESSION['isLoggedIn'] . "</p>";
+} else {
+    echo"<p hidden id='isLoggedIn'> 0 </p>";
+}
+
+?>
     <?php include 'nav.php'; ?>
 
     <div class="container mt-4">
         <h2 class="text-primary"><?= htmlspecialchars($debt['debt_name']) ?></h2>
 
         <div class="card p-3 mb-4">
-            <p><strong>Amount Owed:</strong> <span id="amount-owed" class="text-danger">$<?= number_format($debt['amount_owed'], 2) ?></span></p>
+            <p><strong>Amount Owed:</strong> <span id="amount-owed" class="text-primary">$<?= number_format($debt['amount_owed'], 2) ?></span></p>
+            <p><strong>Balance:</strong> <span id="balance" class="text-primary">$<?= number_format($debt['balance'], 2) ?></span></p>
             <p><strong>Minimum Payment:</strong> $<?= number_format($debt['min_payment'], 2) ?></p>
             <p><strong>Interest Rate:</strong> <?= number_format($debt['interest_rate'], 2) ?>%</p>
         </div>
@@ -174,6 +185,11 @@ if (!$debt) {
             </div>
 
             <div class="col-md-6">
+                <label for="balance" class="form-label">Balance:</label>
+                <input type="number" id="balance" name="debt_balance" class="form-control" value="<?= $debt['balance']; ?>" required>
+            </div>
+
+            <div class="col-md-6">
                 <label for="min-payment" class="form-label">Minimum Payment:</label>
                 <input type="number" id="edit-min-payment" name="min_payment" class="form-control" value="<?= $debt['min_payment']; ?>" required>
             </div>
@@ -188,32 +204,30 @@ if (!$debt) {
             </div>
         </form>
 
-        <!-- Payment Transactions -->
+         <!-- Payment Transactions -->
         <h3 class="mt-4">Payment Transactions</h3>
         <table class="table">
             <thead>
                 <tr>
                     <th>Payment Date</th>
                     <th>Amount</th>
+                    <th>Principal</th>
                     <th>Interest</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody id="payment-list">
                 <?php if (!empty($payments)): ?>
+
                     <?php foreach ($payments as $payment):
                         $break = isset($breakdown[$payment['payment_id']]) ? $breakdown[$payment['payment_id']] : ['principal' => 0, 'interest' => 0];
                     ?>
                         <tr id="payment-row-<?= $payment['payment_id'] ?>">
                             <td><?= date("M d, Y", strtotime($payment['payment_date'])) ?></td>
                             <td>$<?= number_format($payment['payment_amount'], 2) ?></td>
+                            <td>$<?= number_format($break['principal'], 2) ?></td>
                             <td>$<?= number_format($break['interest'], 2) ?></td>
-                            <td>
-                                <form method="POST" action="delete-payment.php">
-                                    <input type="hidden" name="payment_id" value="<?= $payment['payment_id'] ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-                            </td>
+                            <td><button onclick="deletePayment(<?= $payment['payment_id'] ?>, <?= $debtId ?>)">Delete</button></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

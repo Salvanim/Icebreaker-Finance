@@ -2,59 +2,56 @@
 session_start();
 require __DIR__ . '/model/db.php';
 
-// Ensure user is logged in
+// Check if user is logged in
 if (!isset($_SESSION['isLoggedIn'])) {
     http_response_code(403);
-    echo "Unauthorized access.";
+    echo json_encode(["success" => false, "message" => "Unauthorized access."]);
     exit;
 }
 
-// Check if payment_id is provided via POST
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["payment_id"])) {
-    $paymentId = intval($_POST["payment_id"]);
-    $userId = $_SESSION['user_id'] ?? null;
+// Validate request method and parameters
+if ($_SERVER["REQUEST_METHOD"] !== "POST" || !isset($_POST["payment_id"])) {
+    http_response_code(400);
+    echo json_encode(["success" => false, "message" => "Invalid request."]);
+    exit;
+}
 
-    if (!$paymentId || !$userId) {
-        http_response_code(400);
-        echo "Invalid request.";
+$userId = $_SESSION['user_id'];
+$paymentId = $_POST['payment_id'];
+
+try {
+    // Retrieve payment details and validate ownership
+    $stmt = $db->prepare("
+        SELECT dp.debt_id, dp.payment_amount
+        FROM debt_payments dp
+        INNER JOIN debt_lookup dl ON dp.debt_id = dl.debt_id
+        WHERE dp.payment_id = ? AND dl.user_id = ?
+    ");
+    $stmt->execute([$paymentId, $userId]);
+    $payment = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$payment) {
+        echo json_encode(["success" => false, "message" => "Payment not found or access denied."]);
         exit;
     }
 
-    try {
-        // Retrieve the associated debt_id
-        $stmt = $db->prepare("
-            SELECT debt_id FROM debt_payments
-            WHERE payment_id = ?
-            AND debt_id IN (SELECT debt_id FROM debt_lookup WHERE user_id = ?)
-        ");
-        $stmt->execute([$paymentId, $userId]);
-        $debt = $stmt->fetch(PDO::FETCH_ASSOC);
+    $debtId = $payment['debt_id'];
+    $paymentAmount = $payment['payment_amount'];
 
-        if (!$debt) {
-            $_SESSION['message'] = "Payment not found.";
-            header("Location: payment-transactions.php");
-            exit;
-        }
+    // Delete the payment
+    $deleteStmt = $db->prepare("DELETE FROM debt_payments WHERE payment_id = ?");
+    $deleteStmt->execute([$paymentId]);
 
-        $debtId = $debt['debt_id'];
+    // Update debt balance by adding the payment amount back
+    $updateStmt = $db->prepare("UPDATE debt_lookup SET balance = balance + ? WHERE debt_id = ?");
+    $updateStmt->execute([$paymentAmount, $debtId]);
 
-        // Delete the payment
-        $stmt = $db->prepare("DELETE FROM debt_payments WHERE payment_id = ?");
-        $stmt->execute([$paymentId]);
+    echo json_encode(["success" => true, "message" => "Payment deleted successfully."]);
+    exit;
 
-        if ($stmt->rowCount() > 0) {
-            $_SESSION['message'] = "Payment deleted successfully.";
-        } else {
-            $_SESSION['message'] = "Payment could not be deleted.";
-        }
-    } catch (PDOException $e) {
-        $_SESSION['message'] = "Error deleting payment.";
-    }
-} else {
-    $_SESSION['message'] = "Invalid request method.";
+} catch (PDOException $e) {
+    error_log("Database error: " . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "A database error occurred."]);
+    exit;
 }
-
-// Redirect back to the edit_debt page with the correct debt_id
-header("Location: edit-debt.php?debt_id=" . urlencode($debtId));
-exit;
 ?>

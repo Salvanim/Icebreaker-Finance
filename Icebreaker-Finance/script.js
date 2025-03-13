@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const debtForm = document.getElementById("debt-form");
     const debtList = document.getElementById("debt-list");
     const totalDebtSpan = document.getElementById("total-debt") || { textContent: "" };
+    var debts = [];
     let isLoggedIn = false;
     if(document.getElementById("isLoggedIn") !== null){
         isLoggedIn = document.getElementById("isLoggedIn").innerHTML == "1" ? true : false;
@@ -40,19 +41,22 @@ document.addEventListener("DOMContentLoaded", function () {
         // Build rows
         debts.forEach(debt => {
             const amountOwed = parseFloat(debt.amount_owed) || 0;
+            const balance = parseFloat(debt.balance) || 0;
             const minPayment = parseFloat(debt.min_payment) || 0;
             const interestRate = parseFloat(debt.interest_rate) || 0;
+            const payoffDate = calculatePayoffDate(amountOwed, interestRate, minPayment);
 
             const row = document.createElement("tr");
             row.id = `debt-row-${debt.debt_id}`;
             row.innerHTML = `
                 <td>${debt.debt_name}</td>
                 <td>$${amountOwed.toFixed(2)}</td>
+                <td>$${balance.toFixed(2)}</td>
                 <td>$${minPayment.toFixed(2)}</td>
                 <td>${interestRate.toFixed(2)}%</td>
-                <td><!-- Payoff Date (optional) --></td>
+                <td>${payoffDate}</td>
                 <td>
-                    <button class="btn btn-danger btn-sm delete-btn" onclick="deleteDebt(${debt.debt_id})">Delete</button>
+                    <button class="btn btn-primary btn-sm delete-btn" onclick="deleteDebt(${debt.debt_id})">Delete</button>
                 </td>
             `;
             debtsContainer.appendChild(row);
@@ -112,12 +116,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const debtName = debtNameInput.value.trim();
         const method = methodInput.value;
-        const amountOwed = parseFloat(debt.amount_owed) || 0;
+        const amountOwed = parseFloat(debtAmountInput.value) || 0;
+        const balance = amountOwed;
         const minPayment = parseFloat(minPaymentInput.value) || 0;
         const interestRate = parseFloat(interestRateInput.value) || 0;
-        const payoffDate = calculatePayoffDate(debtAmount, interestRate, minPayment);
+        const payoffDate = calculatePayoffDate(amountOwed, interestRate, minPayment);
 
-        if (!debtName || !method || debtAmount <= 0 || minPayment <= 0 || interestRate < 0) {
+        if (!debtName || !method || amountOwed <= 0 || minPayment <= 0 || interestRate < 0) {
             alert("Please enter valid debt details.");
             return;
         }
@@ -126,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
             alert(payoffDate.split("Error: ")[1]);
             return;
         }
+
         console.log(isLoggedIn);
         // If user not logged in, or if you have a 'loggedIn' check
         if (typeof isLoggedIn !== "undefined" && !isLoggedIn) {
@@ -134,7 +140,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 debt_id: Date.now(),
                 debt_name: debtName,
                 debt_type: method,
-                amount_owed: debtAmount,
+                amount_owed: amountOwed,
+                balance: balance,
                 min_payment: minPayment,
                 interest_rate: interestRate,
                 payoff_date: payoffDate
@@ -151,7 +158,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new URLSearchParams();
             formData.append("debt_name", debtName);
             formData.append("debt_type", method);
-            formData.append("debt_amount", debtAmount);
+            formData.append("debt_amount", amountOwed);
+            formData.append("balance", balance);
             formData.append("min_payment", minPayment);
             formData.append("interest_rate", interestRate);
             formData.append("payoff_date", payoffDate);
@@ -170,7 +178,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         debt_id: data.debt_id,
                         debt_name: debtName,
                         debt_type: method,
-                        amount_owed: debtAmount,
+                        amount_owed: amountOwed,
+                        balance: balance,
                         min_payment: minPayment,
                         interest_rate: interestRate,
                         payoff_date: payoffDate
@@ -203,9 +212,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 debts = debts.filter(debt => debt.debt_id !== debtId);
                 updateDebtTable();
                 if(window.location.href.includes("account.php")){
+                    updateDebtsSection();
                     window.location.reload();
                 }
-                updateDebtsSection();
             } else {
                 alert("Error: " + data.message);
             }
@@ -213,24 +222,27 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(error => console.error("Error:", error));
     };
 
-    window.deletePayment = function (paymentId) {
+    window.deletePayment = function (paymentId, debtID) {
         if (!confirm("Are you sure you want to delete this payment?")) return;
 
         fetch("delete-payment.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `payment_id=${paymentId}`
+            body: `payment_id=${encodeURIComponent(paymentId)}`
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 alert("Payment deleted successfully!");
-                window.reload();
+                window.location.href = `edit-debt.php?debt_id=${encodeURIComponent(debtID)}`;
             } else {
                 alert("Error: " + data.message);
             }
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while deleting the payment.");
+        });
     };
 
     window.updateDebt = function (debtId) {
@@ -251,6 +263,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const debtAmount = parseFloat(debtAmountInput.value) || 0;
         const minPayment = parseFloat(minPaymentInput.value) || 0;
         const interestRate = parseFloat(interestRateInput.value) || 0;
+        const payoffDate = calculatePayoffDate(debtAmount, interestRate, minPayment);
 
         // Validate input values
         if (!debtName || debtAmount <= 0 || minPayment <= 0 || interestRate < 0) {
@@ -265,6 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append("debt_amount", debtAmount);
         formData.append("min_payment", minPayment);
         formData.append("interest_rate", interestRate);
+        formData.append("payoff_date", payoffDate);
 
         // Send AJAX request to update-debt.php
         fetch("update-debt.php", {
@@ -278,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Update Response:", data);
             if (data.success) {
                 alert("Debt updated successfully!");
-                location.href = "edit-debt.php?debt_id=2" + debtId; // Redirect to main debts page
+                location.href = "edit-debt.php?debt_id=" + debtId; // Redirect to main debts page
             } else {
                 alert("Error: " + data.message);
             }
@@ -287,6 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     function updateDebtsSection() {
+        const debtsContainer = document.getElementById("debt-list");
         if (!debtsContainer) {
             console.error("Error: debtsContainer element not found.");
             return;
@@ -370,5 +385,4 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         console.log("Skipping fetchDebtsAndUpdateSection() on edit-debt.php");
     }
-
 });

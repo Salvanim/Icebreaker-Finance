@@ -1,4 +1,7 @@
 <?php
+phpinfo();
+?>
+<?php
 session_start();
 require __DIR__ . '/model/db.php';
 ?>
